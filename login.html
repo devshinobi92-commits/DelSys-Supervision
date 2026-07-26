@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentification - DelSys</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #02093a;
+            --accent-blue: #2563eb;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --bg-main: #f8f9fa;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --box-bg-light: #f8f9fa;
+            --input-bg: #f1f5f9;
+            --input-text: #0f172a;
+            --red: #ef4444;
+        }
+
+        [data-theme="dark"] {
+            --primary-dark: #02093a;
+            --accent-blue: #1d4ed8;
+            --card-bg: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --bg-main: #060913;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --box-bg-light: #1e293b;
+            --input-bg: #1e293b;
+            --input-text: #ffffff;
+            --red: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: background-color 0.3s, color 0.3s;
+            overflow-x: hidden;
+            padding-top: 76px;
+        }
+
+        /* Navigation */
+        .navbar-delsys {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1030;
+            background-color: var(--primary-dark);
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #fff !important;
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+        .navbar-brand span { color: #60a5fa; }
+
+        /* Contenu Principal */
+        .main-content {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .login-header i {
+            font-size: 35px;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+        }
+
+        .login-header h2 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .login-header h2 span { color: #60a5fa; }
+        .login-header p { color: var(--text-muted) !important; font-size: 13px; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .input-with-icon { position: relative; }
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .form-control, .form-select {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            padding: 10px 15px 10px 40px;
+            border-radius: 10px;
+            color: var(--input-text);
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+        }
+
+        .form-select { padding-left: 40px; }
+        .form-control::placeholder { color: var(--text-muted); opacity: 0.7; }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-blue);
+            background: var(--card-bg);
+            color: var(--input-text);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            padding: 11px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            margin-top: 5px;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-submit:hover {
+            background: #1d4ed8;
+            transform: translateY(-2px);
+        }
+
+        .error-msg, .success-msg {
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+            display: none;
+            font-weight: 600;
+        }
+        .error-msg { color: var(--red); }
+        .success-msg { color: #10b981; }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 15px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--accent-blue); }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-dark);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: auto;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        footer span { color: #60a5fa; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-delsys">
+        <div class="container-fluid">
+            <a href="index.html" class="navbar-brand">Del<span>Sys</span></a>
+            <div class="ms-auto d-flex align-items-center">
+                <button class="btn btn-outline-light btn-sm me-3 rounded-circle" id="darkModeToggle" title="Changer le thème" style="width: 38px; height: 38px;">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </button>
+                <button class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" id="navRegisterTop" style="background-color: #2563eb; border: none;">S'inscrire</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenu Principal -->
+    <div class="main-content">
+        
+        <!-- Formulaire de Connexion -->
+        <div class="login-card" id="loginCard">
+            <div class="login-header">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h2>Del<span>Sys</span></h2>
+                <p class="small mt-1">Espace d'authentification sécurisé</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="matricule">Matricule ou Identifiant</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="matricule" class="form-control" placeholder="Entrez votre matricule (ex: DevShinobi)" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe / Code</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-key"></i>
+                        <input type="password" id="password" class="form-control" placeholder="Entrez le code" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">Se connecter</button>
+                <div id="errorMsg" class="error-msg">Matricule ou mot de passe incorrect.</div>
+            </form>
+
+            <a href="#" class="back-link" id="linkRegister">Pas encore de compte ? <span style="color: var(--accent-blue);">S'inscrire</span></a>
+            <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left me-1"></i> Retour à la page vitrine</a>
+        </div>
+
+        <!-- Formulaire d'Inscription -->
+        <div class="login-card" id="registerCard" style="display: none;">
+            <div class="login-header">
+                <i class="fa-solid fa-user-plus"></i>
+                <h2>Inscription <span>DelSys</span></h2>
+                <p class="small mt-1">Créez votre compte opérateur</p>
+            </div>
+
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="regMatricule">Matricule</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-id-badge"></i>
+                        <input type="text" id="regMatricule" class="form-control" placeholder="Votre matricule" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="regNom">Nom</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-user"></i>
+                                <input type="text" id="regNom" class="form-control" placeholder="Nom" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="regPostnom">Poste nom</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-user"></i>
+                                <input type="text" id="regPostnom" class="form-control" placeholder="Poste nom" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="regPrenom">Prénom</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-user-pen"></i>
+                                <input type="text" id="regPrenom" class="form-control" placeholder="Prénom" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="regSexe">Sexe</label>
+                            <div class="input-with-icon">
+                                <i class="fa-solid fa-venus-mars"></i>
+                                <select id="regSexe" class="form-select" required>
+                                    <option value="" disabled selected>Sélectionner</option>
+                                    <option value="M">Masculin</option>
+                                    <option value="F">Féminin</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="regPassword">Mot de passe</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="regPassword" class="form-control" placeholder="Mot de passe" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="regConfirm">Confirmation</label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="regConfirm" class="form-control" placeholder="Confirmer le mot de passe" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">S'inscrire</button>
+                <div id="errorMsgRegister" class="error-msg">Les mots de passe ne correspondent pas.</div>
+                <div id="successMsgRegister" class="success-msg">Inscription réussie ! Vous pouvez vous connecter.</div>
+            </form>
+
+            <a href="#" class="back-link" id="linkLogin"><i class="fa-solid fa-arrow-left me-1"></i> Déjà un compte ? Se connecter</a>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="mb-2">&copy; 2026 <span>DelSys</span> — Projet de Fin d'Études</p>
+            <p class="small text-muted mb-0" style="color: #94a3b8 !important;">
+                Réalisé par : 
+                <span>Ir. Mbayo Katuta Shandy</span>, 
+                <span>Ir. Nzola Nzinga Dieu</span>, 
+                <span>Ir. Dialungana Massamba Jessy</span> et 
+                <span>Ir. Nlenvo Grady</span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const htmlTag = document.documentElement;
+
+        // Gestion du Thème partagée via localStorage
+        const savedTheme = localStorage.getItem('delsys_theme') || 'light';
+        htmlTag.setAttribute('data-theme', savedTheme);
+        themeIcon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+
+        darkModeToggle.addEventListener('click', () => {
+            const currentTheme = htmlTag.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlTag.setAttribute('data-theme', newTheme);
+            localStorage.setItem('delsys_theme', newTheme);
+            themeIcon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        });
+
+        // Navigation entre formulaires (Connexion / Inscription)
+        const loginCard = document.getElementById('loginCard');
+        const registerCard = document.getElementById('registerCard');
+        const navRegisterTop = document.getElementById('navRegisterTop');
+        const linkRegister = document.getElementById('linkRegister');
+        const linkLogin = document.getElementById('linkLogin');
+
+        function showRegister(e) {
+            if(e) e.preventDefault();
+            loginCard.style.display = 'none';
+            registerCard.style.display = 'block';
+        }
+
+        function showLogin(e) {
+            if(e) e.preventDefault();
+            registerCard.style.display = 'none';
+            loginCard.style.display = 'block';
+        }
+
+        navRegisterTop.addEventListener('click', showRegister);
+        linkRegister.addEventListener('click', showRegister);
+        linkLogin.addEventListener('click', showLogin);
+
+        // Logique de Connexion configurée pour DevShinobi / @Dev-Shinobi
+        const loginForm = document.getElementById('loginForm');
+        const matriculeInput = document.getElementById('matricule');
+        const passwordInput = document.getElementById('password');
+        const errorMsg = document.getElementById('errorMsg');
+
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const matricule = matriculeInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if ((matricule === "DevShinobi" && password === "@Dev-Shinobi") || (matricule === "mk" && password === "0000")) {
+                sessionStorage.setItem('auth_cabine', 'true');
+                window.location.href = "dashboard.html";
+            } else {
+                errorMsg.style.display = "block";
+                passwordInput.value = "";
+            }
+        });
+
+        // Logique d'Inscription
+        const registerForm = document.getElementById('registerForm');
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            const errorMsgReg = document.getElementById('errorMsgRegister');
+            const successMsgReg = document.getElementById('successMsgRegister');
+
+            if (password !== confirm) {
+                errorMsgReg.style.display = "block";
+                successMsgReg.style.display = "none";
+            } else {
+                errorMsgReg.style.display = "none";
+                successMsgReg.style.display = "block";
+                setTimeout(() => {
+                    showLogin();
+                }, 1500);
+            }
+        });
+    </script>
+</body>
+</html>

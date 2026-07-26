@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DelSys - Système de Contrôle de Cabine Électrique</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-dark: #02093a;
+            --accent-blue: #2563eb;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --bg-main: #f8f9fa;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --box-bg-light: #f8f9fa;
+        }
+
+        [data-theme="dark"] {
+            --primary-dark: #02093a;
+            --accent-blue: #1d4ed8;
+            --card-bg: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --bg-main: #060913;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --box-bg-light: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+            padding-top: 76px;
+        }
+
+        .navbar-delsys {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            z-index: 1030;
+            background-color: var(--primary-dark);
+            padding: 15px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-down { animation: fadeInDown 0.8s ease-out forwards; }
+        .animate-fade-up { animation: fadeInUp 0.8s ease-out forwards; }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: #fff !important;
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+        .navbar-brand span { color: #60a5fa; }
+
+        .hero-section {
+            position: relative;
+            background: linear-gradient(135deg, rgba(2, 9, 58, 0.70), rgba(15, 23, 42, 0.75)), 
+                        url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            color: white;
+            padding: 110px 20px;
+            text-align: center;
+            overflow: hidden;
+        }
+        .hero-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .hero-title span { color: #60a5fa; }
+        .hero-quote {
+            max-width: 900px;
+            margin: 0 auto;
+            color: #f1f5f9;
+            font-size: 1.15rem;
+            line-height: 1.7;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            border-radius: 16px;
+            padding: 35px 25px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            height: 100%;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+        .feature-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+            border-color: var(--accent-blue);
+        }
+        .feature-card i {
+            font-size: 2.5rem;
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover i { transform: scale(1.15); }
+        .feature-card p { color: var(--text-muted) !important; }
+
+        .role-card {
+            background: linear-gradient(135deg, var(--primary-dark), var(--accent-blue));
+            color: white;
+            border-radius: 16px;
+            padding: 35px 20px;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            height: 100%;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .role-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(37, 99, 235, 0.35);
+            filter: brightness(1.1);
+        }
+        .role-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            color: #60a5fa;
+            transition: transform 0.3s ease;
+        }
+        .role-card:hover i { transform: scale(1.2); }
+
+        .content-section {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+            transition: transform 0.3s ease;
+            margin-bottom: 3rem;
+        }
+        .content-section p, .content-section li, .content-section h3, .content-section h5 { color: var(--text-main); }
+        .content-section .text-muted, .content-section p.text-muted { color: var(--text-muted) !important; }
+        .content-section ul li { margin-bottom: 12px; }
+
+        .explanation-box {
+            background-color: var(--box-bg-light) !important;
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main) !important;
+        }
+
+        footer {
+            background-color: var(--primary-dark);
+            color: white;
+            text-align: center;
+            padding: 30px 0;
+            margin-top: auto;
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        footer span { color: #60a5fa; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-delsys">
+        <div class="container-fluid">
+            <a href="index.html" class="navbar-brand animate-fade-down">Del<span>Sys</span></a>
+            <div class="ms-auto d-flex align-items-center">
+                <button class="btn btn-outline-light btn-sm me-3 rounded-circle" id="darkModeToggle" title="Changer le thème" style="width: 38px; height: 38px;">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </button>
+                <a href="login.html" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background-color: #2563eb; border: none;">Se connecter</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header / Hero Section -->
+    <header class="hero-section">
+        <div class="container animate-fade-down">
+            <h1 class="hero-title">Del<span>Sys</span></h1>
+            <h1><span style="color: #60a5fa;">Système</span> de délestage</h1>
+            <p class="hero-quote">
+                <em>« Système embarqué de commande et de contrôle d'une cabine électrique pour gérer le délestage. »</em><br><br>
+                La mise en place d’un système embarqué de commande et de contrôle dans une cabine électrique permet une gestion autonome, efficace et sécurisée du délestage, en tenant compte des paramètres en temps réel et en réduisant les interventions manuelles, souvent sources d’erreurs ou de retards d'action.
+            </p>
+            <h1>. . .</h1>
+        </div>
+    </header>
+
+    <!-- Contenu Principal -->
+    <div class="container my-5 animate-fade-up">
+        
+        <div class="content-section">
+            <h3 class="h4 fw-bold mb-3 text-primary"><i class="fas fa-book-reader me-2"></i>Présentation Explicative du Projet</h3>
+            <p class="text-muted mb-3">
+                Face aux défis chroniques de l'instabilité de l'énergie électrique et à la complexité des coupures tournantes manuelles, le projet <strong>DelSys</strong> introduit une approche moderne basée sur l'Internet des Objets (IoT) et l'embarqué.
+            </p>
+            <p class="text-muted mb-3">
+                <strong>Pourquoi ce projet ?</strong> Les méthodes traditionnelles de délestage nécessitent de lourdes interventions humaines sur le terrain, ce qui retarde les manœuvres en cas de surcharge critique. DelSys automatise et sécurise ce processus en plaçant un microcontrôleur ESP32 au cœur de chaque cabine électrique.
+            </p>
+            <h5 class="fw-bold mt-4 mb-3">Les grands axes de la solution :</h5>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="p-3 border rounded explanation-box">
+                        <strong class="text-primary"><i class="fas fa-cogs me-1"></i> 1. Automatisation</strong>
+                        <p class="small text-muted mb-0 mt-1">Exécution des scénarios de délestage sans délai d'intervention humaine selon la charge mesurée.<br></p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border rounded explanation-box">
+                        <strong class="text-primary"><i class="fas fa-chart-line me-1"></i> 2. Monitoring</strong>
+                        <p class="small text-muted mb-0 mt-1">Suivi en direct des tensions, des courants, de la température intérieure et des risques d'intrusion.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border rounded explanation-box">
+                        <strong class="text-primary"><i class="fas fa-network-wired me-1"></i> 3. Connectivité Web</strong>
+                        <p class="small text-muted mb-0 mt-1">Centralisation des données sur une application accessible aux différents profils (Admin, Technique, Client).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="text-center mb-4 fw-bold" style="font-size: 1.6rem; letter-spacing: 1px;">CARACTÉRISTIQUES TECHNIQUES</h2>
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-microchip"></i>
+                    <h3 class="h5 fw-bold mb-3">Architecture IoT (ESP32)</h3>
+                    <p class="small mb-0">Système connecté basé sur un microcontrôleur ESP32 pour le pilotage et la transmission des données de la cabine en temps réel.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3 class="h5 fw-bold mb-3">Sécurité Anti-Intrusion</h3>
+                    <p class="small mb-0">Surveillance physique intégrée de l'infrastructure avec détection de présence et alertes immédiates pour sécuriser les équipements.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <i class="fas fa-bolt"></i>
+                    <h3 class="h5 fw-bold mb-3">Supervision Temps Réel</h3>
+                    <p class="small mb-0">Acquisition instantanée des grandeurs électriques (courants, tensions, puissance) et environnementales (température, fumée).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h3 class="h4 fw-bold mb-3 text-primary"><i class="fas fa-bullseye me-2"></i>Objectifs du projet</h3>
+            <p class="text-muted mb-4">Ce projet met en œuvre un système embarqué de commande et de contrôle d'une cabine électrique dans le but de répondre aux exigences suivantes :</p>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Gérer de manière automatisée les périodes de délestage selon des plages programmées ou dynamiques.</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Offrir une interface de supervision capable de simuler et contrôler à distance le comportement de la cabine.</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-unstyled text-muted">
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Améliorer la fiabilité et la sécurité de la distribution électrique (notamment dans la zone de Nsona-Nkulu).</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Réduire les pertes liées aux coupures intempestives grâce à une plateforme web réactive et connectée.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>   
+
+        <h2 class="text-center mb-4 fw-bold" style="font-size: 1.6rem; letter-spacing: 1px;">ESPACES DE CONNEXION</h2>
+        <div class="row g-4 justify-content-center mb-4">
+            <div class="col-md-4">
+                <div class="role-card" onclick="location.href='login.html'">
+                    <i class="fas fa-user-shield"></i>
+                    <h3 class="h5 fw-bold mb-0">Administration</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="role-card" onclick="location.href='login.html'">
+                    <i class="fas fa-user-cog"></i>
+                    <h3 class="h5 fw-bold mb-0">Agent Technique</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="role-card" onclick="location.href='login.html'">
+                    <i class="fas fa-user"></i>
+                    <h3 class="h5 fw-bold mb-0">Client / Visiteur</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mt-5 mb-5">
+            <div class="col-md-8 text-center">
+                <div class="p-4 border rounded shadow-sm content-section mb-0">
+                    <i class="fas fa-exclamation-triangle text-warning fs-1 mb-2"></i>
+                    <h4 class="fw-bold mb-2">Un problème sur le réseau ou une cabine ?</h4>
+                    <p class="text-muted small mb-3">Les utilisateurs et clients ont la possibilité de notifier rapidement un incident technique ou une coupure suspecte à l'équipe de supervision.</p>
+                    <button class="btn btn-warning fw-bold px-4 py-2 rounded-pill shadow-sm text-dark" data-bs-toggle="modal" data-bs-target="#signalementModal">
+                        <i class="fas fa-paper-plane me-2"></i>Signaler un problème
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Signalement -->
+    <div class="modal fade" id="signalementModal" tabindex="-1" aria-labelledby="signalementModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="background-color: var(--card-bg); color: var(--text-main);">
+                <div class="modal-header border-bottom border-secondary border-opacity-10">
+                    <h5 class="modal-title fw-bold" id="signalementModalLabel"><i class="fas fa-triangle-exclamation text-warning me-2"></i>Signaler un dysfonctionnement</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="small text-muted mb-3">Vous constatez une coupure anormale, une panne sur une cabine ou un incident technique ? Remplissez ce formulaire pour alerter l'équipe de régulation.</p>
+                    <form onsubmit="alert('Signalement transmis avec succès !'); return false;">
+                        <div class="mb-3">
+                            <label for="clientName" class="form-label small fw-bold">Nom complet</label>
+                            <input type="text" class="form-control" id="clientName" placeholder="Votre nom ou référence client" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cabineRef" class="form-label small fw-bold">Cabine ou Quartier concerné</label>
+                            <input type="text" class="form-control" id="cabineRef" placeholder="Ex: Cabine Nsona-Nkulu 02" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="problemType" class="form-label small fw-bold">Type de problème</label>
+                            <select class="form-select" id="problemType">
+                                <option selected>Coupure intempestive / Panne totale</option>
+                                <option>Variation anormale de tension</option>
+                                <option>Tentative d'intrusion / Vandalisme cabine</option>
+                                <option>Autre problème technique</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="problemDesc" class="form-label small fw-bold">Description détaillée</label>
+                            <textarea class="form-control" id="problemDesc" rows="3" placeholder="Précisez les détails de l'incident..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2" style="background-color: #2563eb; border: none;">Envoyer le signalement</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p class="mb-2">&copy; 2026 <span>DelSys</span> — Projet de Fin d'Études</p>
+            <p class="small text-muted mb-0" style="color: #94a3b8 !important;">
+                Réalisé par : 
+                <span>Ir. Mbayo Katuta Shandy</span>, 
+                <span>Ir. Nzola Nzinga Dieu</span>, 
+                <span>Ir. Dialungana Massamba Jessy</span> et 
+                <span>Ir. Nlenvo Grady</span>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const htmlTag = document.documentElement;
+
+        // Persistance du thème partagée
+        const savedTheme = localStorage.getItem('delsys_theme') || 'light';
+        htmlTag.setAttribute('data-theme', savedTheme);
+        themeIcon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+
+        darkModeToggle.addEventListener('click', () => {
+            const currentTheme = htmlTag.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlTag.setAttribute('data-theme', newTheme);
+            localStorage.setItem('delsys_theme', newTheme);
+            themeIcon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        });
+    </script>
+</body>
+</html>

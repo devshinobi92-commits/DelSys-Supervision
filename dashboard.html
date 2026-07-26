@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DelSys Supervision</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Generation PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        :root {
+            --fixed-panel-bg: #02093a;
+            --fixed-topnav-bg: #04104f;
+            --fixed-panel-text: #f8fafc;
+            --fixed-panel-muted: #94a3b8;
+            --fixed-border: rgba(255, 255, 255, 0.08);
+
+            --main-bg: rgba(240, 244, 248, 0.75);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(0, 0, 0, 0.08);
+            --dark-blue: #0b1f54; 
+            --sensor-blue: #1e3a8a;
+            --red: #ef4444;
+            --green: #22c55e;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --radius: 16px;
+            --sidebar-width: 280px;
+        }
+
+        [data-theme="dark"] {
+            --main-bg: #060913;
+            --fixed-panel-bg: #02093a;
+            --fixed-topnav-bg: #04104f;
+            --card-bg: #0f172a;
+            --card-border: rgba(255, 255, 255, 0.08);
+            --dark-blue: #0b1f54;
+            --sensor-blue: #1d4ed8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            transition: background-color 0.3s, color 0.3s, border-color 0.3s; 
+        }
+
+        body {
+            background-color: var(--main-bg);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        [data-theme="light"] body {
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            background-image: radial-gradient(rgba(37, 99, 235, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            backdrop-filter: blur(2px);
+        }
+        .sidebar-overlay.active { display: block; }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: var(--fixed-panel-bg);
+            color: var(--fixed-panel-text);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 25px 20px;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+            flex-shrink: 0;
+            border-right: 1px solid var(--fixed-border);
+            overflow: hidden;
+            white-space: nowrap;
+            transition: transform 0.3s ease, width 0.3s ease, opacity 0.3s ease;
+            z-index: 1000;
+            position: fixed;
+            top: 0; left: 0;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .logo-area h1 { 
+            font-size: 35px; 
+            letter-spacing: 1.5px; 
+            margin-bottom: 25px; 
+            font-weight: 800; 
+            color: #ffffff; 
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+        .logo-area h1 span {
+            color: #38bdf8;
+            background: linear-gradient(135deg, #38bdf8, #2563eb);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links { 
+            list-style: none; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 12px; 
+            overflow: hidden;
+        }
+        .nav-links li a { 
+            color: var(--fixed-panel-muted); 
+            text-decoration: none; 
+            font-size: 14px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 10px 12px;
+            border-radius: 10px;
+            cursor: pointer; 
+            transition: all 0.2s ease;
+        }
+        .nav-links li a:hover, .nav-links li a.active { 
+            color: #ffffff; 
+            background: var(--dark-blue);
+            font-weight: 600; 
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-top: 1px solid var(--fixed-border);
+            padding-top: 15px;
+            flex-shrink: 0;
+        }
+
+        .user-avatar {
+            width: 36px; height: 36px;
+            background-color: var(--dark-blue);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 15px; color: white;
+            flex-shrink: 0;
+        }
+
+        .user-info { overflow: hidden; flex: 1; }
+        .user-info .username { font-size: 13px; font-weight: bold; text-overflow: ellipsis; overflow: hidden; }
+        .user-info .role { font-size: 11px; color: var(--fixed-panel-muted); }
+
+        .logout-btn {
+            background: none; border: none;
+            color: var(--fixed-panel-muted);
+            cursor: pointer; font-size: 16px; padding: 8px;
+            border-radius: 8px; transition: color 0.3s, background-color 0.3s;
+            flex-shrink: 0;
+        }
+        .logout-btn:hover { color: var(--red); background-color: rgba(239, 68, 68, 0.1); }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100%;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed ~ .main-container { margin-left: 0; }
+
+        .topnav {
+            background-color: var(--fixed-topnav-bg);
+            color: var(--fixed-panel-text);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 20px; height: 65px;
+            border-bottom: 1px solid var(--fixed-border);
+            flex-shrink: 0; width: 100%;
+            z-index: 900;
+        }
+
+        .topnav-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        
+        .menu-toggle-btn {
+            background: none; border: none; color: var(--fixed-panel-text);
+            font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border-radius: 50%;
+        }
+        .menu-toggle-btn:hover { background-color: var(--fixed-border); }
+
+        .top-actions { display: flex; align-items: center; gap: 8px; }
+
+        .btn-theme-toggle {
+            background-color: var(--fixed-border); color: var(--fixed-panel-text);
+            border: 1px solid var(--fixed-border); width: 36px; height: 36px;
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        .btn-connect-top {
+            background-color: var(--fixed-border); color: var(--fixed-panel-text);
+            border: none; padding: 6px 12px; border-radius: var(--radius); cursor: pointer; font-size: 12px; font-weight: 600;
+        }
+
+        .app-view { display: none; flex: 1; width: 100%; flex-direction: column; overflow: hidden; }
+        .app-view.active-view { display: flex; }
+
+        .app-view.active-view#view-dashboard {
+            height: calc(100vh - 65px);
+        }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 15px; 
+            padding: 15px;
+            width: 100%;
+            max-width: 1600px;
+            height: 100%;
+            margin: 0 auto;
+            align-items: stretch;
+            overflow: hidden;
+        }
+
+        .content-section {
+            padding: 20px; width: 100%;
+            max-width: 1400px; margin: 0 auto;
+            display: flex; flex-direction: column; gap: 20px;
+            overflow-y: auto;
+            height: 100%;
+        }
+
+        .card-panel {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid var(--card-border);
+        }
+
+        .card-panel h2 {
+            font-size: 18px; margin-bottom: 15px;
+            color: var(--dark-blue);
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .styled-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        .styled-table th, .styled-table td { padding: 10px 12px; border-bottom: 1px solid var(--card-border); }
+        .styled-table th { color: var(--text-muted); font-weight: 600; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+        .form-control {
+            width: 100%; padding: 10px;
+            border-radius: 8px; border: 1px solid var(--card-border);
+            background-color: var(--main-bg); color: var(--text-main); font-size: 14px;
+        }
+        .btn-primary-custom {
+            background-color: var(--dark-blue); color: white;
+            border: none; padding: 8px 14px; border-radius: 8px;
+            font-weight: bold; font-size: 12px; cursor: pointer;
+        }
+        .btn-primary-custom:hover { opacity: 0.9; }
+
+        .synoptic-panel {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 15px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid var(--card-border);
+            height: 100%;
+            min-width: 0;
+        }
+
+        .synoptic-title { 
+            text-align: center; font-size: 16px; font-weight: bold; 
+            color: var(--dark-blue); flex-shrink: 0; margin-bottom: 5px;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        
+        .synoptic-body {
+            position: relative; width: 100%;
+            flex: 1; margin: 5px 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .circuit-stage { position: relative; width: 100%; max-width: 850px; height: 100%; margin: 0 auto; }
+
+        .schema-lines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        .line-control {
+            stroke: #64748b;
+            stroke-width: 1.8px;
+            stroke-linecap: round;
+            fill: none;
+        }
+
+        .line-path-bg {
+            stroke: rgba(148, 163, 184, 0.2);
+            stroke-width: 2px;
+            stroke-linecap: round;
+            fill: none;
+        }
+
+        .line-path-flow {
+            stroke-width: 2px;
+            stroke-linecap: round;
+            fill: none;
+            transition: stroke 0.3s ease, filter 0.3s ease;
+        }
+
+        .line-path-flow.off {
+            stroke: #3b82f6;
+            stroke-dasharray: none;
+            animation: none;
+            filter: none;
+        }
+
+        .line-path-flow.energized {
+            stroke: #facc15;
+            stroke-dasharray: 5, 5;
+            filter: drop-shadow(0 0 4px #eab308);
+            animation: currentFlow 0.6s linear infinite;
+        }
+
+        @keyframes currentFlow {
+            0% { stroke-dashoffset: 20; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .arduino-lcd {
+            position: absolute; top: 2%; left: 2%;
+            background-color: #031427; color: #38bdf8;
+            border: 2px solid #0284c7; border-radius: 8px;
+            padding: 8px; width: 26%; min-width: 120px;
+            font-family: 'Courier New', Courier, monospace; font-size: 11px;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.2), inset 0 0 8px rgba(0,0,0,0.8); z-index: 2;
+        }
+        .arduino-lcd .lcd-line { margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: bold;}
+
+        .esp32-box {
+            position: absolute; top: 38%; left: 2%;
+            background: linear-gradient(135deg, var(--dark-blue), #0f172a);
+            color: white; padding: 12px 6px; border-radius: 10px;
+            text-align: center; font-weight: bold; font-size: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 18%; min-width: 80px;
+            z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            border: 1px solid #38bdf8;
+        }
+
+        .relay-box {
+            position: absolute; top: 38%; left: 34%;
+            background-color: var(--text-muted); color: white;
+            padding: 24px 6px; border-radius: 8px;
+            writing-mode: vertical-rl; text-orientation: mixed; text-align: center;
+            font-weight: 700; font-size: 12px; z-index: 3;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .relay-box.active-relay {
+            background-color: #0284c7;
+            box-shadow: 0 0 12px rgba(2, 132, 199, 0.6);
+        }
+        .relay-box.fault { background-color: var(--red); box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); }
+        .relay-box.delestage { background-color: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.8); }
+
+        .sensor-current-1 { position: absolute; top: 18%; left: 51%; z-index: 2; }
+        .sensor-current-2 { position: absolute; top: 44%; left: 51%; z-index: 2; }
+        .sensor-current-3 { position: absolute; top: 70%; left: 51%; z-index: 2; }
+
+        .lamp-1 { position: absolute; top: 18%; left: 81%; z-index: 2; }
+        .lamp-2 { position: absolute; top: 44%; left: 81%; z-index: 2; }
+        .lamp-3 { position: absolute; top: 70%; left: 81%; z-index: 2; }
+
+        .sensor-box {
+            background: var(--sensor-blue); color: #ffffff;
+            padding: 5px 6px; border-radius: 6px; font-size: 10px; font-weight: bold;
+            border: 1px solid rgba(255, 255, 255, 0.2); text-align: center; width: 75px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.3s ease;
+        }
+        .sensor-box.energized-val { 
+            background: #0284c7; 
+            border-color: #38bdf8;
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+        }
+        .sensor-tag { font-size: 9px; color: var(--text-muted); margin-bottom: 2px; text-align: center; width: 75px; font-weight: 700; }
+
+        .lamp-container {
+            display: flex; align-items: center; justify-content: center;
+            background: var(--main-bg); padding: 6px 10px; border-radius: 10px;
+            border: 1px solid var(--card-border); width: 50px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: all 0.3s ease;
+        }
+
+        .lamp-icon { font-size: 20px; color: #64748b; transition: all 0.3s ease; }
+        .lamp-icon.active { color: #f59e0b; text-shadow: 0 0 12px rgba(245, 158, 11, 0.9); transform: scale(1.1); }
+
+        .bottom-sensors-row {
+            position: absolute; bottom: 2%; left: 2%; right: 2%;
+            display: flex; justify-content: space-around; align-items: center;
+            padding-top: 10px; border-top: 1px dashed var(--text-muted); z-index: 2;
+        }
+
+        .sensor-mini { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            font-size: 13px; 
+            color: var(--text-main); 
+            gap: 4px; 
+            font-weight: 600; 
+            text-align: center; 
+        }
+        .sensor-mini i { 
+            font-size: 22px; 
+            color: var(--dark-blue); 
+        }
+        .sensor-mini span {
+            font-size: 13px; 
+        }
+        .sensor-mini i#fanIcon.active { color: var(--green); text-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
+
+        .control-bar { margin-top: 5px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+        .btn-manual { background-color: var(--dark-blue); color: white; border: none; padding: 8px; border-radius: var(--radius); font-weight: bold; font-size: 11px; cursor: pointer; text-align: center; width: 100%; transition: all 0.2s ease; }
+        .btn-manual.mode-manuel { background-color: var(--green); box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
+
+        .actions-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .left-controls, .right-controls { display: flex; align-items: center; gap: 6px; }
+
+        .circle-phase-btn {
+            width: 34px; height: 34px; border-radius: 50%;
+            background-color: var(--dark-blue); color: white; border: none;
+            font-weight: bold; font-size: 12px; cursor: pointer; transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(11, 31, 84, 0.4);
+        }
+        .circle-phase-btn.active-phase { background-color: #1d4ed8; box-shadow: 0 0 8px rgba(29, 78, 216, 0.6); }
+        .circle-phase-btn.inactive-phase { background-color: var(--dark-blue); opacity: 0.6; }
+        .circle-phase-btn:disabled { cursor: not-allowed; opacity: 0.4; }
+
+        .btn-vocal-round {
+            width: 34px; height: 34px; border-radius: 50%;
+            background-color: var(--dark-blue); color: white; border: none;
+            font-weight: bold; font-size: 12px; cursor: pointer; transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(11, 31, 84, 0.4);
+        }
+        .btn-vocal-round.active-fan { background-color: var(--green); box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
+        .btn-vocal-round:disabled { cursor: not-allowed; opacity: 0.4; }
+
+        .btn-emergency {
+            background-color: var(--red); color: white; border: none;
+            padding: 6px 12px; border-radius: var(--radius); font-weight: bold; font-size: 11px; cursor: pointer;
+            box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+        }
+        .btn-emergency.emergency-active { background-color: var(--fixed-border); color: var(--fixed-panel-text); border: 2px dashed var(--red); }
+
+        .gauges-panel {
+            background: linear-gradient(180deg, #02093a 0%, #040d4b 100%);
+            border-radius: var(--radius);
+            padding: 14px;
+            display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+            color: var(--fixed-panel-text); 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 100%;
+            overflow-y: auto;
+            min-width: 0;
+        }
+
+        .gauges-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: #60a5fa;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #22c55e;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .status-icon {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+        }
+
+        .gauge-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            border-radius: 10px; 
+            padding: 8px 10px; 
+            border: 1px solid rgba(255, 255, 255, 0.07); 
+            display: flex; flex-direction: column; justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .gauge-card:hover {
+            border-color: rgba(56, 189, 248, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .gauge-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2px;
+        }
+
+        .gauge-card h3 { 
+            font-size: 11px; 
+            color: var(--fixed-panel-muted); 
+            font-weight: 600; 
+            margin: 0;
+        }
+
+        .gauge-badge {
+            font-size: 9px;
+            font-weight: 700;
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            padding: 2px 6px;
+            border-radius: 6px;
+        }
+
+        .image-gauge-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 140px;
+            height: 65px;
+            margin: 0 auto; 
+        }
+
+        .gauge-svg { 
+            width: 100%; 
+            height: 100%; 
+            overflow: visible;
+        }
+
+        .gauge-track { 
+            fill: none; 
+            stroke: rgba(255, 255, 255, 0.08); 
+            stroke-width: 8; 
+            stroke-linecap: round; 
+        }
+
+        .gauge-fill {
+            fill: none; 
+            stroke-width: 8; 
+            stroke-linecap: round;
+            stroke-dasharray: 132; 
+            stroke-dashoffset: 132; 
+            transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .gauge-needle-modern {
+            stroke: #ffffff;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            transform-origin: 50px 50px;
+            transform: rotate(0deg);
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.8));
+        }
+
+        .needle-center {
+            fill: #38bdf8;
+            stroke: #ffffff;
+            stroke-width: 1.5;
+        }
+
+        .gauge-value { 
+            font-size: 13px; 
+            font-weight: 800; 
+            margin-top: 1px; 
+            color: #ffffff; 
+            text-align: center;
+        }
+
+        .gauge-value small {
+            font-size: 9px;
+            color: var(--fixed-panel-muted);
+            font-weight: 500;
+        }
+
+        .currents-grid { 
+            display: flex; 
+            justify-content: space-between; 
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.25); 
+            padding: 6px; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255, 255, 255, 0.05); 
+            margin-top: 2px;
+        }
+
+        .current-box { 
+            text-align: center; 
+            flex: 1; 
+            background: rgba(255, 255, 255, 0.03);
+            padding: 3px;
+            border-radius: 6px;
+        }
+
+        .phase-tag { 
+            display: block; 
+            color: var(--fixed-panel-muted); 
+            font-size: 9px;
+            font-weight: 700;
+            margin-bottom: 1px;
+        }
+
+        .current-box strong { 
+            color: #38bdf8; 
+            font-size: 11px; 
+            font-weight: 700;
+        }
+
+        .report-controls { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+        .report-controls .form-control { max-width: 250px; display: inline-block; }
+
+        @media(max-width: 992px) {
+            body { height: auto; overflow: auto; }
+            .main-container { height: auto; overflow: visible; }
+            .app-view.active-view#view-dashboard { height: auto; }
+            .workspace { grid-template-columns: 1fr; height: auto; overflow: visible; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar:not(.collapsed) { transform: translateX(0); width: 280px; opacity: 1; }
+            .main-container { margin-left: 0 !important; }
+            .synoptic-panel { height: 500px; }
+            .gauges-panel { height: auto; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar collapsed" id="sidebar">
+        <div class="logo-area">
+            <h1>Del<span>Sys</span></h1>
+            <ul class="nav-links">
+                <li><a class="nav-menu-item active" data-target="view-dashboard"><i class="fa-solid fa-chart-pie"></i> Tableau de bord</a></li>
+                <li><a class="nav-menu-item" data-target="view-donnees"><i class="fa-solid fa-database"></i> Données</a></li>
+                <li><a class="nav-menu-item" data-target="view-users"><i class="fa-solid fa-users"></i> Utilisateurs</a></li>
+                <li><a class="nav-menu-item" data-target="view-program"><i class="fa-solid fa-code"></i> Programme</a></li>
+                <li><a class="nav-menu-item" data-target="view-reports"><i class="fa-solid fa-file-lines"></i> Rapports</a></li>
+            </ul>
+        </div>
+        <div class="user-profile">   
+            <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+            <div class="user-info">
+                <div class="username">Shandy mbayo</div>
+                <div class="role">Admin</div>
+            </div>
+            <button class="logout-btn" id="logoutBtn" title="Se déconnecter"><i class="fa-solid fa-right-from-bracket"></i></button>
+        </div>
+    </aside>
+
+    <div class="main-container">
+        <header class="topnav">
+            <div class="topnav-title">
+                <button class="menu-toggle-btn" id="sidebarToggleBtn" title="Afficher/Masquer le menu"><i class="fa-solid fa-bars"></i></button>
+                <h2 style="color: white; display: flex; align-items: center; gap: 2px;">Del<span style="color: #38bdf8;">Sys</span></h2>
+            </div>
+            <div class="top-actions">
+                <button class="btn-theme-toggle" id="themeToggleBtn" title="Changer le thème"><i class="fa-solid fa-sun" id="themeIcon"></i></button>
+                <button class="btn-connect-top" id="btnConnectionState">Déconnecté</button>
+            </div>
+        </header>
+
+        <!-- VUE 1 : TABLEAU DE BORD ADAPTATIF -->
+        <div class="app-view active-view" id="view-dashboard">
+            <div class="workspace">
+                <section class="synoptic-panel">
+                    <div class="synoptic-title">
+                        <i class="fa-solid fa-bolt" style="color: #38bdf8;"></i> Système de Supervision Électrique
+                    </div>
+                    
+                    <div class="synoptic-body">
+                        <div class="circuit-stage">
+                            <svg class="schema-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <line x1="20" y1="48" x2="34" y2="48" class="line-control" />
+
+                                <path d="M 38 42 C 45 42, 46 22, 51 22" class="line-path-bg" />
+                                <path d="M 38 42 C 45 42, 46 22, 51 22" class="line-path-flow energized" id="path-l1" />
+
+                                <path d="M 38 48 C 45 48, 46 48, 51 48" class="line-path-bg" />
+                                <path d="M 38 48 C 45 48, 46 48, 51 48" class="line-path-flow energized" id="path-l2" />
+
+                                <path d="M 38 54 C 45 54, 46 74, 51 74" class="line-path-bg" />
+                                <path d="M 38 54 C 45 54, 46 74, 51 74" class="line-path-flow energized" id="path-l3" />
+
+                                <line x1="58" y1="22" x2="81" y2="22" class="line-path-bg" />
+                                <line x1="58" y1="22" x2="81" y2="22" class="line-path-flow energized" id="out-l1" />
+
+                                <line x1="58" y1="48" x2="81" y2="48" class="line-path-bg" />
+                                <line x1="58" y1="48" x2="81" y2="48" class="line-path-flow energized" id="out-l2" />
+
+                                <line x1="58" y1="74" x2="81" y2="74" class="line-path-bg" />
+                                <line x1="58" y1="74" x2="81" y2="74" class="line-path-flow energized" id="out-l3" />
+                            </svg>
+
+                            <div class="arduino-lcd" id="lcdScreen">
+                                <div class="lcd-line">● Mode Auto</div>
+                                <div class="lcd-line">● L1 Prioritaire</div>
+                            </div>
+
+                            <div class="esp32-box">
+                                <i class="fa-solid fa-microchip"></i><br>ESP32
+                            </div>
+
+                            <div class="relay-box active-relay" id="relayBox">Relais</div>
+
+                            <div class="sensor-current-1">
+                                <div class="sensor-tag">Phase L1</div>
+                                <div class="sensor-box energized-val" id="curBox1">9.6 A</div>
+                            </div>
+                            <div class="sensor-current-2">
+                                <div class="sensor-tag">Phase L2</div>
+                                <div class="sensor-box energized-val" id="curBox2">9.9 A</div>
+                            </div>
+                            <div class="sensor-current-3">
+                                <div class="sensor-tag">Phase L3</div>
+                                <div class="sensor-box energized-val" id="curBox3">9.7 A</div>
+                            </div>
+
+                            <div class="lamp-1">
+                                <div class="lamp-container"><i class="fa-solid fa-lightbulb lamp-icon active" id="lamp1"></i></div>
+                            </div>
+                            <div class="lamp-2">
+                                <div class="lamp-container"><i class="fa-solid fa-lightbulb lamp-icon active" id="lamp2"></i></div>
+                            </div>
+                            <div class="lamp-3">
+                                <div class="lamp-container"><i class="fa-solid fa-lightbulb lamp-icon active" id="lamp3"></i></div>
+                            </div>
+
+                            <div class="bottom-sensors-row">
+                                <div class="sensor-mini">
+                                    <i class="fa-solid fa-fire-flame-curved" id="smokeIcon"></i>
+                                    <span>Fumée : <strong id="smokeVal" style="color:var(--text-main);">0 ppm</strong></span>
+                                </div>
+                                <div class="sensor-mini">
+                                    <i class="fa-solid fa-temperature-half"></i>
+                                    <span>Température : <strong id="tempValBottom" style="color:var(--text-main);">28.5 °C</strong></span>
+                                </div>
+                                <div class="sensor-mini">
+                                    <i class="fa-solid fa-fan" id="fanIcon"></i>
+                                    <span>Ventilateur</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="control-bar">
+                        <button class="btn-manual" id="modeBtn">Mode : Auto (Cliquer pour basculer en Manuel)</button>
+                        <div class="actions-row">
+                            <div class="left-controls">
+                                <button class="circle-phase-btn active-phase" id="btnL1" title="Alimentation L1" disabled>L1</button>
+                                <button class="circle-phase-btn active-phase" id="btnL2" title="Alimentation L2" disabled>L2</button>
+                                <button class="circle-phase-btn active-phase" id="btnL3" title="Alimentation L3" disabled>L3</button>
+                            </div>
+                            <div class="right-controls">  
+                                <button class="btn-vocal-round" id="vocalToggleBtn" title="Commande Ventilateur" disabled>V</button>
+                                <button class="btn-emergency" id="emergencyBtn">URGENCE</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <aside class="gauges-panel">
+                    <div class="gauges-header">
+                        <div class="header-status">
+                            <span class="live-dot"></span>
+                            <span>TEMPS RÉEL</span>
+                        </div>
+                        <i class="fa-solid fa-microchip status-icon"></i>
+                    </div>
+
+                    <div class="gauge-card">
+                        <div class="gauge-card-header">
+                            <h3>Puissance Totale</h3>
+                            <span class="gauge-badge">kW</span>
+                        </div>
+                        <div class="image-gauge-container">
+                            <svg class="gauge-svg" viewBox="0 0 100 60">
+                                <defs>
+                                    <linearGradient id="gradPower" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#38bdf8" />
+                                        <stop offset="100%" stop-color="#2563eb" />
+                                    </linearGradient>
+                                </defs>
+                                <path class="gauge-track" d="M 8 50 A 42 42 0 0 1 92 50" />
+                                <path class="gauge-fill" id="fillPower" d="M 8 50 A 42 42 0 0 1 92 50" stroke="url(#gradPower)" />
+                                <circle cx="50" cy="50" r="4" class="needle-center" />
+                                <line id="needlePower" x1="50" y1="50" x2="14" y2="50" class="gauge-needle-modern" />
+                            </svg>
+                        </div>
+                        <div class="gauge-value" id="valPower">4.2 <small>kW</small></div>
+                    </div>
+
+                    <div class="gauge-card">
+                        <div class="gauge-card-header">
+                            <h3>Les Courants par Phase</h3>
+                            <i class="fa-solid fa-bolt" style="color: #f59e0b; font-size: 13px;"></i>
+                        </div>
+                        <div class="currents-grid">
+                            <div class="current-box">
+                                <span class="phase-tag">L1</span>
+                                <strong id="dynL1">9.6A</strong>
+                            </div>
+                            <div class="current-box">
+                                <span class="phase-tag">L2</span>
+                                <strong id="dynL2">9.9A</strong>
+                            </div>
+                            <div class="current-box">
+                                <span class="phase-tag">L3</span>
+                                <strong id="dynL3">9.7A</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="gauge-card">
+                        <div class="gauge-card-header">
+                            <h3>Taux de Charge</h3>
+                            <span class="gauge-badge">%</span>
+                        </div>
+                        <div class="image-gauge-container">
+                            <svg class="gauge-svg" viewBox="0 0 100 60">
+                                <defs>
+                                    <linearGradient id="gradLoad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#22c55e" />
+                                        <stop offset="70%" stop-color="#f59e0b" />
+                                        <stop offset="100%" stop-color="#ef4444" />
+                                    </linearGradient>
+                                </defs>
+                                <path class="gauge-track" d="M 8 50 A 42 42 0 0 1 92 50" />
+                                <path class="gauge-fill" id="fillLoad" d="M 8 50 A 42 42 0 0 1 92 50" stroke="url(#gradLoad)" />
+                                <circle cx="50" cy="50" r="4" class="needle-center" />
+                                <line id="needleLoad" x1="50" y1="50" x2="14" y2="50" class="gauge-needle-modern" />
+                            </svg>
+                        </div>
+                        <div class="gauge-value" id="valLoad">85 <small>%</small></div>
+                    </div>
+
+                    <div class="gauge-card">
+                        <div class="gauge-card-header">
+                            <h3>Température Cabine</h3>
+                            <span class="gauge-badge">°C</span>
+                        </div>
+                        <div class="image-gauge-container">
+                            <svg class="gauge-svg" viewBox="0 0 100 60">
+                                <defs>
+                                    <linearGradient id="gradTemp" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#38bdf8" />
+                                        <stop offset="50%" stop-color="#a855f7" />
+                                        <stop offset="100%" stop-color="#ef4444" />
+                                    </linearGradient>
+                                </defs>
+                                <path class="gauge-track" d="M 8 50 A 42 42 0 0 1 92 50" />
+                                <path class="gauge-fill" id="fillTemp" d="M 8 50 A 42 42 0 0 1 92 50" stroke="url(#gradTemp)" />
+                                <circle cx="50" cy="50" r="4" class="needle-center" />
+                                <line id="needleTemp" x1="50" y1="50" x2="14" y2="50" class="gauge-needle-modern" />
+                            </svg>
+                        </div>
+                        <div class="gauge-value" id="tempDisplay">28.5 <small>°C</small></div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+
+        <!-- VUE 2 : DONNÉES -->
+        <div class="app-view" id="view-donnees">
+            <div class="content-section">
+                <div class="card-panel">
+                    <h2><i class="fa-solid fa-database"></i> Historique des Données des Capteurs</h2>
+                    <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
+                        Tableau récapitulatif des mesures en temps réel enregistrées par le système.
+                    </p>
+                    <div style="overflow-x: auto;">
+                        <table class="styled-table" id="dataTableDonnees">
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Datetime</th>
+                                    <th>Cap1</th>
+                                    <th>Cap2</th>
+                                    <th>Cap3</th>
+                                    <th>Température</th>
+                                    <th>Fumée</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>2026-07-25 13:40:12</td>
+                                    <td>9.6 A</td>
+                                    <td>9.9 A</td>
+                                    <td>9.7 A</td>
+                                    <td>28.5 °C</td>
+                                    <td>0 ppm</td>
+                                    <td><button class="btn-primary-custom" style="padding: 4px 8px; background-color: var(--red);" onclick="supprimerLigneDonnee(this)">Supprimer</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE 3 : UTILISATEURS -->
+        <div class="app-view" id="view-users">
+            <div class="content-section">
+                <div class="card-panel">
+                    <h2><i class="fa-solid fa-user-plus"></i> Ajouter un utilisateur</h2>
+                    <form id="addUserForm" onsubmit="ajouterUtilisateur(event)">
+                        <div class="form-group">
+                            <label>Matricule</label>
+                            <input type="text" id="inputMatricule" class="form-control" placeholder="Ex: MAT-002" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Rôle</label>
+                            <select id="inputRole" class="form-control">
+                                <option value="Opérateur">Opérateur</option>
+                                <option value="Admin">Admin</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary-custom">Ajouter l'utilisateur</button>
+                    </form>
+                </div>
+
+                <div class="card-panel">
+                    <h2><i class="fa-solid fa-users-gear"></i> Liste des Opérateurs</h2>
+                    <table class="styled-table" id="operatorsTable">
+                        <thead>
+                            <tr>
+                                <th>Matricule</th>
+                                <th>Rôle</th>
+                                <th>Statut Approbation</th>
+                                <th>Actions Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MAT-001</td>
+                                <td>Opérateur</td>
+                                <td><span id="statut-MAT-001" style="color: var(--green); font-weight: bold;">Approuvé</span></td>
+                                <td>
+                                    <button class="btn-primary-custom" style="background-color: #f59e0b; padding: 4px 8px;" onclick="toggleApprobation(event, 'MAT-001')">Désapprouver</button>
+                                    <button class="btn-primary-custom" style="background-color: var(--red); padding: 4px 8px;" onclick="supprimerOperateur(this)">Supprimer</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE 4 : RAPPORTS -->
+        <div class="app-view" id="view-reports">
+            <div class="content-section">
+                <div class="card-panel" id="pdfReportContent">
+                    <h2><i class="fa-solid fa-file-arrow-down"></i> Rapports de la Cabine</h2>
+                    <div class="report-controls">
+                        <div>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Trier par Délesteur :</label>
+                            <select id="filterDelesteur" class="form-control" onchange="filtrerTableauRapport()">
+                                <option value="tous">Tous</option>
+                                <option value="systeme">Système</option>
+                                <option value="Shandy mbayo">Shandy mbayo</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="overflow-x: auto;">
+                        <table class="styled-table" id="reportTable">
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Jours</th>
+                                    <th>Date</th>
+                                    <th>Heure</th>
+                                    <th>CL1</th>
+                                    <th>CL2</th>
+                                    <th>CL3</th>
+                                    <th>PM</th>
+                                    <th>TC</th>
+                                    <th>Delestage</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr data-delesteur="systeme">
+                                    <td>1</td>
+                                    <td>Samedi</td>
+                                    <td>2026-07-25</td>
+                                    <td>03:40:12</td>
+                                    <td>9.6 A</td>
+                                    <td>9.9 A</td>
+                                    <td>9.7 A</td>
+                                    <td>4.2 kW</td>
+                                    <td>85%</td>
+                                    <td>Non</td>
+                                    <td><button class="btn-primary-custom btn-generate" onclick="telechargerRapportPDF()">Générer le rapport</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VUE 5 : PROGRAMME -->
+        <div class="app-view" id="view-program">
+            <div class="content-section">
+                <div class="card-panel">
+                    <h2><i class="fa-solid fa-code"></i> Gestion de priorité des départs</h2>
+                    <div style="overflow-x: auto;">
+                        <table class="styled-table" id="tableGestionProgramme">
+                            <thead>
+                                <tr>
+                                    <th>N°</th>
+                                    <th>Départs</th>
+                                    <th>Descriptions</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td contenteditable="true">L1</td>
+                                    <td contenteditable="true">Hôpital Nsona-nkulu</td>
+                                    <td>
+                                        <select class="form-control" style="padding: 4px 8px; font-size: 12px;">
+                                            <option value="Prioritaire" selected>Prioritaire</option>
+                                            <option value="Delestable">Délestable</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script principal Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js";
+
+        if (sessionStorage.getItem('auth_cabine') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        const firebaseConfig = {
+            apiKey: "TON_API_KEY",
+            authDomain: "TON_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://TON_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "TON_PROJECT_ID",
+            storageBucket: "TON_PROJECT_ID.appspot.com",
+            messagingSenderId: "TON_SENDER_ID",
+            appId: "TON_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const cabineRef = ref(db, 'cabine/statut');
+
+        const lcdScreen = document.getElementById('lcdScreen');
+        const btnConnectionState = document.getElementById('btnConnectionState');
+        const emergencyBtn = document.getElementById('emergencyBtn');
+        const vocalToggleBtn = document.getElementById('vocalToggleBtn');
+        const fanIcon = document.getElementById('fanIcon');
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        const relayBox = document.getElementById('relayBox');
+        const modeBtn = document.getElementById('modeBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        const navMenuItems = document.querySelectorAll('.nav-menu-item');
+        const appViews = document.querySelectorAll('.app-view');
+
+        const savedTheme = localStorage.getItem('delsys_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        themeIcon.className = savedTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+
+        navMenuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetViewId = item.getAttribute('data-target');
+
+                navMenuItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+
+                appViews.forEach(view => view.classList.remove('active-view'));
+                document.getElementById(targetViewId).classList.add('active-view');
+
+                if (window.innerWidth <= 992) {
+                    toggleSidebar();
+                }
+            });
+        });
+
+        const btnL1 = document.getElementById('btnL1');
+        const btnL2 = document.getElementById('btnL2');
+        const btnL3 = document.getElementById('btnL3');
+        const lamp1 = document.getElementById('lamp1');
+        const lamp2 = document.getElementById('lamp2');
+        const lamp3 = document.getElementById('lamp3');
+
+        const valPower = document.getElementById('valPower');
+        const valLoad = document.getElementById('valLoad');
+        const tempDisplay = document.getElementById('tempDisplay');
+        const tempValBottom = document.getElementById('tempValBottom');
+        const smokeVal = document.getElementById('smokeVal');
+        const dynL1 = document.getElementById('dynL1');
+        const dynL2 = document.getElementById('dynL2');
+        const dynL3 = document.getElementById('dynL3');
+
+        const curBox1 = document.getElementById('curBox1');
+        const curBox2 = document.getElementById('curBox2');
+        const curBox3 = document.getElementById('curBox3');
+        
+        const fillPower = document.getElementById('fillPower');
+        const fillLoad = document.getElementById('fillLoad');
+        const fillTemp = document.getElementById('fillTemp');
+        const needlePower = document.getElementById('needlePower');
+        const needleLoad = document.getElementById('needleLoad');
+        const needleTemp = document.getElementById('needleTemp');
+
+        let etatLignes = { l1: true, l2: true, l3: true };
+        let ventilateurActif = false;
+        let systemeCoupe = false;
+        let modeManuel = false;
+        let delestageEtape = 0;
+        let timerDelestage = null;
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            if (window.innerWidth <= 992) {
+                sidebarOverlay.classList.toggle('active', !sidebar.classList.contains('collapsed'));
+            }
+        }
+
+        sidebarToggleBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        logoutBtn.addEventListener('click', () => {
+            sessionStorage.removeItem('auth_cabine');
+            window.location.href = 'login.html';
+        });
+
+        themeToggleBtn.addEventListener('click', () => {
+            const htmlTag = document.documentElement;
+            const currentTheme = htmlTag.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            htmlTag.setAttribute('data-theme', newTheme);
+            localStorage.setItem('delsys_theme', newTheme);
+            themeIcon.className = newTheme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+        });
+
+        modeBtn.addEventListener('click', () => {
+            if (systemeCoupe) return;
+            modeManuel = !modeManuel;
+            if (modeManuel) {
+                modeBtn.innerText = "Mode : Manuel (Cliquer pour Auto)";
+                modeBtn.classList.add('mode-manuel');
+                btnL1.removeAttribute('disabled');
+                btnL2.removeAttribute('disabled');
+                btnL3.removeAttribute('disabled');
+                vocalToggleBtn.removeAttribute('disabled');
+                lcdScreen.innerHTML = `<div class="lcd-line">● Mode Manuel</div><div class="lcd-line">● Contrôle User</div>`;
+                relayBox.classList.remove('delestage');
+            } else {
+                modeBtn.innerText = "Mode : Auto (Cliquer pour Manuel)";
+                modeBtn.classList.remove('mode-manuel');
+                btnL1.setAttribute('disabled', 'true');
+                btnL2.setAttribute('disabled', 'true');
+                btnL3.setAttribute('disabled', 'true');
+                vocalToggleBtn.setAttribute('disabled', 'true');
+                lcdScreen.innerHTML = `<div class="lcd-line">● Mode Auto</div><div class="lcd-line">● L1 Prioritaire</div>`;
+                
+                delestageEtape = 0;
+                if(timerDelestage) clearTimeout(timerDelestage);
+                etatLignes = { l1: true, l2: true, l3: true };
+                majInterfaceLignes();
+            }
+        });
+
+        function setWireState(pathElement, isEnergized) {
+            if (isEnergized) {
+                pathElement.classList.remove('off');
+                pathElement.classList.add('energized');
+            } else {
+                pathElement.classList.remove('energized');
+                pathElement.classList.add('off');
+            }
+        }
+
+        function majInterfaceLignes() {
+            if (systemeCoupe) return;
+
+            const mainActive = etatLignes.l1 || etatLignes.l2 || etatLignes.l3;
+            relayBox.classList.toggle('active-relay', mainActive);
+
+            const pathL1 = document.getElementById('path-l1');
+            const outL1 = document.getElementById('out-l1');
+            setWireState(pathL1, etatLignes.l1);
+            setWireState(outL1, etatLignes.l1);
+            lamp1.classList.toggle('active', etatLignes.l1);
+            btnL1.className = `circle-phase-btn ${etatLignes.l1 ? 'active-phase' : 'inactive-phase'}`;
+            const valC1 = etatLignes.l1 ? (9.5 + Math.random() * 0.4).toFixed(1) : "0.0";
+            curBox1.classList.toggle('energized-val', etatLignes.l1);
+            curBox1.innerText = valC1 + " A";
+            dynL1.innerText = valC1 + "A";
+
+            const pathL2 = document.getElementById('path-l2');
+            const outL2 = document.getElementById('out-l2');
+            setWireState(pathL2, etatLignes.l2);
+            setWireState(outL2, etatLignes.l2);
+            lamp2.classList.toggle('active', etatLignes.l2);
+            btnL2.className = `circle-phase-btn ${etatLignes.l2 ? 'active-phase' : 'inactive-phase'}`;
+            const valC2 = etatLignes.l2 ? (9.7 + Math.random() * 0.4).toFixed(1) : "0.0";
+            curBox2.classList.toggle('energized-val', etatLignes.l2);
+            curBox2.innerText = valC2 + " A";
+            dynL2.innerText = valC2 + "A";
+
+            const pathL3 = document.getElementById('path-l3');
+            const outL3 = document.getElementById('out-l3');
+            setWireState(pathL3, etatLignes.l3);
+            setWireState(outL3, etatLignes.l3);
+            lamp3.classList.toggle('active', etatLignes.l3);
+            btnL3.className = `circle-phase-btn ${etatLignes.l3 ? 'active-phase' : 'inactive-phase'}`;
+            const valC3 = etatLignes.l3 ? (9.6 + Math.random() * 0.4).toFixed(1) : "0.0";
+            curBox3.classList.toggle('energized-val', etatLignes.l3);
+            curBox3.innerText = valC3 + " A";
+            dynL3.innerText = valC3 + "A";
+        }
+
+        btnL1.addEventListener('click', () => { if (!systemeCoupe && modeManuel) { etatLignes.l1 = !etatLignes.l1; majInterfaceLignes(); } });
+        btnL2.addEventListener('click', () => { if (!systemeCoupe && modeManuel) { etatLignes.l2 = !etatLignes.l2; majInterfaceLignes(); } });
+        btnL3.addEventListener('click', () => { if (!systemeCoupe && modeManuel) { etatLignes.l3 = !etatLignes.l3; majInterfaceLignes(); } });
+
+        vocalToggleBtn.addEventListener('click', () => {
+            if (systemeCoupe || !modeManuel) return;
+            ventilateurActif = !ventilateurActif;
+            vocalToggleBtn.classList.toggle('active-fan', ventilateurActif);
+            fanIcon.classList.toggle('fa-spin', ventilateurActif);
+            fanIcon.classList.toggle('active', ventilateurActif);
+        });
+
+        function updateGauge(percent, fillEl, needleEl) {
+            const maxDash = 132;
+            const offset = maxDash - (percent / 100) * maxDash;
+            fillEl.style.strokeDashoffset = Math.max(0, offset);
+            
+            const angle = (percent / 100) * 180;
+            needleEl.style.transform = `rotate(${angle}deg)`;
+        }
+
+        emergencyBtn.addEventListener('click', () => {
+            systemeCoupe = !systemeCoupe;
+            if (systemeCoupe) {
+                etatLignes = { l1: false, l2: false, l3: false };
+                ventilateurActif = false;
+                
+                setWireState(document.getElementById('path-l1'), false);
+                setWireState(document.getElementById('out-l1'), false);
+                lamp1.classList.remove('active');
+                
+                setWireState(document.getElementById('path-l2'), false);
+                setWireState(document.getElementById('out-l2'), false);
+                lamp2.classList.remove('active');
+
+                setWireState(document.getElementById('path-l3'), false);
+                setWireState(document.getElementById('out-l3'), false);
+                lamp3.classList.remove('active');
+
+                curBox1.classList.remove('energized-val'); curBox1.innerText = "0.0 A"; dynL1.innerText = "0.0A";
+                curBox2.classList.remove('energized-val'); curBox2.innerText = "0.0 A"; dynL2.innerText = "0.0A";
+                curBox3.classList.remove('energized-val'); curBox3.innerText = "0.0 A"; dynL3.innerText = "0.0A";
+
+                vocalToggleBtn.classList.remove('active-fan');
+                fanIcon.classList.remove('fa-spin', 'active');
+                
+                emergencyBtn.innerText = "Reset";
+                emergencyBtn.classList.add('emergency-active');
+                relayBox.classList.add('fault');
+                relayBox.classList.remove('active-relay', 'delestage');
+                lcdScreen.innerHTML = `<div class="lcd-line" style="color:#ef4444;">● URGENCE</div><div class="lcd-line" style="color:#ef4444;">● VERROUILLÉ</div>`;
+                
+                valPower.innerHTML = `0.0 <small>kW</small>`;
+                valLoad.innerHTML = `0 <small>%</small>`;
+                tempDisplay.innerHTML = `0.0 <small>°C</small>`;
+                updateGauge(0, fillPower, needlePower);
+                updateGauge(0, fillLoad, needleLoad);
+                updateGauge(0, fillTemp, needleTemp);
+
+                set(cabineRef, "urgence");
+            } else {
+                emergencyBtn.innerText = "URGENCE";
+                emergencyBtn.classList.remove('emergency-active');
+                relayBox.classList.remove('fault');
+                etatLignes = { l1: true, l2: true, l3: true };
+                lcdScreen.innerHTML = `<div class="lcd-line">● Mode Auto</div><div class="lcd-line">● L1 Prioritaire</div>`;
+                majInterfaceLignes();
+                set(cabineRef, "normal");
+            }
+        });
+
+        function simulerDonneesTempsReel() {
+            if (systemeCoupe) return;
+            const tempVal = (25 + Math.random() * 5).toFixed(1);
+            const smoke = Math.floor(Math.random() * 5);
+            
+            if (!modeManuel) {
+                if (delestageEtape === 0 && Math.random() > 0.85) {
+                    delestageEtape = 1;
+                    etatLignes.l1 = true;
+                    etatLignes.l2 = false;
+                    etatLignes.l3 = true;
+                    
+                    relayBox.classList.add('delestage');
+                    relayBox.classList.remove('active-relay');
+                    lcdScreen.innerHTML = `<div class="lcd-line" style="color:#f59e0b;">● DELESTAGE (L2)</div><div class="lcd-line">● L1 Prioritaire</div>`;
+                    
+                    timerDelestage = setTimeout(() => {
+                        if (!modeManuel && !systemeCoupe && delestageEtape === 1) {
+                            delestageEtape = 2;
+                            etatLignes.l1 = true;
+                            etatLignes.l2 = true;
+                            etatLignes.l3 = false;
+                            lcdScreen.innerHTML = `<div class="lcd-line" style="color:#f59e0b;">● DELESTAGE (L3)</div><div class="lcd-line">● L1 Prioritaire</div>`;
+                            
+                            timerDelestage = setTimeout(() => {
+                                if (!modeManuel && !systemeCoupe) {
+                                    delestageEtape = 0;
+                                    etatLignes.l1 = true;
+                                    etatLignes.l2 = true;
+                                    etatLignes.l3 = true;
+                                    relayBox.classList.remove('delestage');
+                                    relayBox.classList.add('active-relay');
+                                    lcdScreen.innerHTML = `<div class="lcd-line">● Mode Auto</div><div class="lcd-line">● L1 Prioritaire</div>`;
+                                }
+                            }, 60000);
+                        }
+                    }, 60000);
+                }
+            }
+
+            majInterfaceLignes();
+
+            const powerVal = ((etatLignes.l1 ? 1.4 : 0) + (etatLignes.l2 ? 1.4 : 0) + (etatLignes.l3 ? 1.4 : 0)).toFixed(1);
+            const loadVal = Math.min(100, Math.floor((powerVal / 4.2) * 100));
+            const tempPercent = Math.min(100, (tempVal / 100) * 100);
+
+            valPower.innerHTML = `${powerVal} <small>kW</small>`;
+            valLoad.innerHTML = `${loadVal} <small>%</small>`;
+            tempDisplay.innerHTML = `${tempVal} <small>°C</small>`;
+            tempValBottom.innerText = tempVal + " °C";
+            smokeVal.innerText = smoke + " ppm";
+
+            updateGauge((powerVal / 4.2) * 100, fillPower, needlePower);
+            updateGauge(loadVal, fillLoad, needleLoad);
+            updateGauge(tempPercent, fillTemp, needleTemp);
+        }
+
+        setInterval(simulerDonneesTempsReel, 3000);
+
+        btnConnectionState.addEventListener('click', () => {
+            btnConnectionState.innerText = "Connecté";
+            btnConnectionState.style.backgroundColor = "#22c55e";
+            onValue(cabineRef, (snapshot) => {
+                if (snapshot.val() === "urgence" && !systemeCoupe) emergencyBtn.click();
+            });
+        });
+    </script>
+
+    <script>
+        function filtrerTableauRapport() {
+            const filtreDelesteur = document.getElementById('filterDelesteur').value.toLowerCase();
+            const lignes = document.querySelectorAll('#reportTable tbody tr');
+
+            lignes.forEach(ligne => {
+                const delesteurAttr = ligne.getAttribute('data-delesteur').toLowerCase();
+                ligne.style.display = (filtreDelesteur === 'tous' || delesteurAttr.includes(filtreDelesteur)) ? "" : "none";
+            });
+        }
+
+        function supprimerLigneDonnee(button) {
+            button.closest('tr').remove();
+        }
+
+        function ajouterUtilisateur(event) {
+            event.preventDefault();
+            const matricule = document.getElementById('inputMatricule').value.trim();
+            const role = document.getElementById('inputRole').value;
+
+            if (!matricule) return;
+
+            const tbody = document.querySelector('#operatorsTable tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${matricule}</td>
+                <td>${role}</td>
+                <td><span id="statut-${matricule}" style="color: var(--green); font-weight: bold;">Approuvé</span></td>
+                <td>
+                    <button class="btn-primary-custom" style="background-color: #f59e0b; padding: 4px 8px;" onclick="toggleApprobation(event, '${matricule}')">Désapprouver</button>
+                    <button class="btn-primary-custom" style="background-color: var(--red); padding: 4px 8px;" onclick="supprimerOperateur(this)">Supprimer</button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+            document.getElementById('inputMatricule').value = '';
+        }
+
+        function toggleApprobation(evt, matricule) {
+            const statutSpan = document.getElementById(`statut-${matricule}`);
+            const btn = evt.target;
+            if (statutSpan.innerText === "Approuvé") {
+                statutSpan.innerText = "Désapprouvé";
+                statutSpan.style.color = "var(--red)";
+                btn.innerText = "Approuver";
+                btn.style.backgroundColor = "var(--green)";
+            } else {
+                statutSpan.innerText = "Approuvé";
+                statutSpan.style.color = "var(--green)";
+                btn.innerText = "Désapprouver";
+                btn.style.backgroundColor = "#f59e0b";
+            }
+        }
+
+        function supprimerOperateur(button) {
+            if (confirm("Voulez-vous vraiment supprimer cet opérateur ?")) {
+                button.closest('tr').remove();
+            }
+        }
+
+        function telechargerRapportPDF() {
+            const element = document.getElementById('pdfReportContent');
+            const options = {
+                margin:       10,
+                filename:     'Rapport_Cabine_DelSys.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+
+            html2pdf().from(element).set(options).save();
+        }
+    </script>
+</body>
+</html>
