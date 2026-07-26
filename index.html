@@ -40,7 +40,7 @@
             flex-direction: column;
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
-            padding-top: 60px; /* Réduit pour coller la photo tout de suite sous la navbar fixe */
+            padding-top: 56px; /* Ajusté pour coller parfaitement sous la navbar */
         }
 
         .navbar-delsys {
@@ -63,8 +63,22 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Animation des trois points */
+        @keyframes pulseDots {
+            0%, 100% { opacity: 0.3; transform: scale(0.95); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
         .animate-fade-down { animation: fadeInDown 0.8s ease-out forwards; }
         .animate-fade-up { animation: fadeInUp 0.8s ease-out forwards; }
+        .animated-dots {
+            display: inline-block;
+            font-size: 1.8rem;
+            letter-spacing: 4px;
+            animation: pulseDots 1.8s infinite ease-in-out;
+            color: #60a5fa;
+            margin-top: 10px;
+        }
 
         .navbar-brand {
             font-weight: 800;
@@ -78,17 +92,19 @@
 
         .hero-section {
             position: relative;
-            background: linear-gradient(135deg, rgba(2, 9, 58, 0.70), rgba(15, 23, 42, 0.75)), 
+            /* Image dynamique gérée par JS, transition fluide du fond */
+            background: linear-gradient(135deg, rgba(2, 9, 58, 0.75), rgba(15, 23, 42, 0.80)), 
                         url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+            transition: background-image 1s ease-in-out;
             color: white;
-            padding: 90px 20px 80px 20px; /* Remontée en réduisant le padding supérieur */
+            padding: 60px 20px 70px 20px; /* Remonté pour réduire l'espace vide en haut */
             text-align: center;
             overflow: hidden;
         }
         .hero-title {
             font-size: 2.8rem;
             font-weight: 800;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
         .hero-title span { color: #60a5fa; }
@@ -194,7 +210,7 @@
                 font-size: 0.85rem;
             }
             .hero-section {
-                padding: 70px 15px 60px 15px;
+                padding: 50px 15px 50px 15px;
             }
         }
     </style>
@@ -214,8 +230,8 @@
         </div>
     </nav>
 
-    <!-- Header / Hero Section -->
-    <header class="hero-section">
+    <!-- Header / Hero Section (Image dynamique) -->
+    <header class="hero-section" id="heroSection">
         <div class="container animate-fade-down">
             <h1 class="hero-title">Del<span>Sys</span></h1>
             <h1><span style="color: #60a5fa;">Système</span> de délestage</h1>
@@ -223,7 +239,7 @@
                 <em>« Système embarqué de commande et de contrôle d'une cabine électrique pour gérer le délestage. »</em><br><br>
                 La mise en place d’un système embarqué de commande et de contrôle dans une cabine électrique permet une gestion autonome, efficace et sécurisée du délestage, en tenant compte des paramètres en temps réel et en réduisant les interventions manuelles, souvent sources d’erreurs ou de retards d'action.
             </p>
-            <h1>. . .</h1>
+            <div class="animated-dots">. . .</div>
         </div>
     </header>
 
@@ -396,6 +412,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Gestion du thème sombre / clair
         const darkModeToggle = document.getElementById('darkModeToggle');
         const themeIcon = document.getElementById('themeIcon');
         const htmlTag = document.documentElement;
@@ -411,6 +428,21 @@
             localStorage.setItem('delsys_theme', newTheme);
             themeIcon.className = newTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
         });
+
+        // Carrousel dynamique de l'image de fond (Hero Section)
+        const heroImages = [
+            'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1920&q=80', // Réseau / tech
+            'https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=1920&q=80', // Électricité / Lignes
+            'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1920&q=80'  // Circuits / Microcontrôleur
+        ];
+        
+        let currentImageIndex = 0;
+        const heroSection = document.getElementById('heroSection');
+
+        setInterval(() => {
+            currentImageIndex = (currentImageIndex + 1) % heroImages.length;
+            heroSection.style.background = `linear-gradient(135deg, rgba(2, 9, 58, 0.75), rgba(15, 23, 42, 0.80)), url('${heroImages[currentImageIndex]}') center/cover no-repeat`;
+        }, 5000); // Change l'image toutes les 5 secondes
     </script>
 </body>
 </html>
