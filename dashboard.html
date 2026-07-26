@@ -34,11 +34,11 @@
             --fixed-panel-bg: #02093a;
             --fixed-topnav-bg: #04104f;
             --card-bg: #0f172a;
-            --card-border: rgba(255, 255, 255, 0.08);
-            --dark-blue: #0b1f54;
+            --card-border: rgba(255, 255, 255, 0.15);
+            --dark-blue: #1e3a8a;
             --sensor-blue: #1d4ed8;
             --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --text-muted: #cbd5e1;
         }
 
         * { 
@@ -49,13 +49,17 @@
             transition: background-color 0.3s, color 0.3s, border-color 0.3s; 
         }
 
+        html, body {
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            position: relative;
+        }
+
         body {
             background-color: var(--main-bg);
             color: var(--text-main);
-            height: 100vh;
             display: flex;
-            overflow: hidden;
-            position: relative;
         }
 
         [data-theme="light"] body {
@@ -77,18 +81,19 @@
 
         .sidebar {
             width: var(--sidebar-width);
+            max-width: 85vw;
             height: 100vh;
+            height: 100dvh;
             background-color: var(--fixed-panel-bg);
             color: var(--fixed-panel-text);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 25px 20px;
+            padding: 20px 15px;
             box-shadow: 4px 0 15px rgba(0,0,0,0.05);
             flex-shrink: 0;
             border-right: 1px solid var(--fixed-border);
             overflow: hidden;
-            white-space: nowrap;
             transition: transform 0.3s ease, width 0.3s ease, opacity 0.3s ease;
             z-index: 1000;
             position: fixed;
@@ -105,32 +110,34 @@
             flex-direction: column;
             overflow: hidden;
             flex: 1;
+            min-height: 0;
+            width: 100%;
         }
 
-        .logo-area h1 { 
-            font-size: 35px; 
-            letter-spacing: 1.5px; 
-            margin-bottom: 25px; 
+        /* CORRECTION DE L'ESPACEMENT DU LOGO */
+        .logo-area .delsys-brand { 
+            font-size: 26px; 
+            letter-spacing: 0px; 
+            margin-bottom: 20px; 
             font-weight: 800; 
             color: #ffffff; 
             display: flex;
             align-items: center;
-            gap: 2px;
+            gap: 0px;
             flex-shrink: 0;
         }
-        .logo-area h1 span {
-            color: #38bdf8;
-            background: linear-gradient(135deg, #38bdf8, #2563eb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        .logo-area .delsys-brand i { font-size: 22px; color: #38bdf8; }
+        .logo-area .delsys-brand span { color: #38bdf8; }
 
         .nav-links { 
             list-style: none; 
             display: flex; 
             flex-direction: column; 
-            gap: 12px; 
-            overflow: hidden;
+            gap: 10px; 
+            overflow-y: auto;
+            flex: 1;
+            padding-right: 4px;
+            width: 100%;
         }
         .nav-links li a { 
             color: var(--fixed-panel-muted); 
@@ -143,6 +150,7 @@
             border-radius: 10px;
             cursor: pointer; 
             transition: all 0.2s ease;
+            white-space: nowrap;
         }
         .nav-links li a:hover, .nav-links li a.active { 
             color: #ffffff; 
@@ -153,10 +161,11 @@
         .user-profile {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             border-top: 1px solid var(--fixed-border);
             padding-top: 15px;
             flex-shrink: 0;
+            width: 100%;
         }
 
         .user-avatar {
@@ -168,9 +177,9 @@
             flex-shrink: 0;
         }
 
-        .user-info { overflow: hidden; flex: 1; }
-        .user-info .username { font-size: 13px; font-weight: bold; text-overflow: ellipsis; overflow: hidden; }
-        .user-info .role { font-size: 11px; color: var(--fixed-panel-muted); }
+        .user-info { overflow: hidden; flex: 1; min-width: 0; }
+        .user-info .username { font-size: 13px; font-weight: bold; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; }
+        .user-info .role { font-size: 11px; color: var(--fixed-panel-muted); white-space: nowrap; }
 
         .logout-btn {
             background: none; border: none;
@@ -186,6 +195,7 @@
             display: flex;
             flex-direction: column;
             height: 100vh;
+            height: 100dvh;
             width: 100%;
             margin-left: var(--sidebar-width);
             transition: margin-left 0.3s ease;
@@ -206,6 +216,13 @@
 
         .topnav-title { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
         
+        .topnav-logo-badge {
+            display: flex; align-items: center; gap: 0px;
+            font-size: 18px; font-weight: 800; color: #ffffff; letter-spacing: 0px;
+        }
+        .topnav-logo-badge i { font-size: 16px; color: #38bdf8; }
+        .topnav-logo-badge span { color: #38bdf8; }
+
         .menu-toggle-btn {
             background: none; border: none; color: var(--fixed-panel-text);
             font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
@@ -226,12 +243,8 @@
             border: none; padding: 6px 12px; border-radius: var(--radius); cursor: pointer; font-size: 12px; font-weight: 600;
         }
 
-        .app-view { display: none; flex: 1; width: 100%; flex-direction: column; overflow: hidden; }
+        .app-view { display: none; flex: 1; width: 100%; flex-direction: column; overflow: hidden; height: calc(100dvh - 65px); }
         .app-view.active-view { display: flex; }
-
-        .app-view.active-view#view-dashboard {
-            height: calc(100vh - 65px);
-        }
 
         .workspace {
             display: grid;
@@ -246,12 +259,18 @@
             overflow: hidden;
         }
 
+        /* RENDRE TOUTES LES AUTRES VUES PLEINEMENT RESPONSIVES */
         .content-section {
-            padding: 20px; width: 100%;
-            max-width: 1400px; margin: 0 auto;
-            display: flex; flex-direction: column; gap: 20px;
-            overflow-y: auto;
+            padding: 20px; 
+            width: 100%;
+            max-width: 1400px; 
+            margin: 0 auto;
+            display: flex; 
+            flex-direction: column; 
+            gap: 20px;
             height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .card-panel {
@@ -260,20 +279,29 @@
             padding: 20px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             border: 1px solid var(--card-border);
+            flex-shrink: 0;
+            width: 100%;
         }
 
         .card-panel h2 {
             font-size: 18px; margin-bottom: 15px;
-            color: var(--dark-blue);
+            color: var(--text-main);
             display: flex; align-items: center; gap: 10px;
         }
 
-        .styled-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        .styled-table th, .styled-table td { padding: 10px 12px; border-bottom: 1px solid var(--card-border); }
-        .styled-table th { color: var(--text-muted); font-weight: 600; }
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            display: block;
+        }
+
+        .styled-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; color: var(--text-main); white-space: nowrap; }
+        .styled-table th, .styled-table td { padding: 12px 15px; border-bottom: 1px solid var(--card-border); }
+        .styled-table th { color: var(--text-muted); font-weight: 600; position: sticky; top: 0; background: var(--card-bg); z-index: 10; }
 
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; color: var(--text-main); }
         .form-control {
             width: 100%; padding: 10px;
             border-radius: 8px; border: 1px solid var(--card-border);
@@ -283,6 +311,7 @@
             background-color: var(--dark-blue); color: white;
             border: none; padding: 8px 14px; border-radius: 8px;
             font-weight: bold; font-size: 12px; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center;
         }
         .btn-primary-custom:hover { opacity: 0.9; }
 
@@ -294,12 +323,13 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.05);
             border: 1px solid var(--card-border);
             height: 100%;
+            overflow: hidden;
             min-width: 0;
         }
 
         .synoptic-title { 
             text-align: center; font-size: 16px; font-weight: bold; 
-            color: var(--dark-blue); flex-shrink: 0; margin-bottom: 5px;
+            color: var(--text-main); flex-shrink: 0; margin-bottom: 5px;
             display: flex; align-items: center; justify-content: center; gap: 8px;
         }
         
@@ -307,28 +337,37 @@
             position: relative; width: 100%;
             flex: 1; margin: 5px 0;
             display: flex; align-items: center; justify-content: center;
+            min-height: 0;
         }
 
         .circuit-stage { position: relative; width: 100%; max-width: 850px; height: 100%; margin: 0 auto; }
 
-        .schema-lines { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        .schema-lines { 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: 1; 
+            pointer-events: none; 
+        }
 
         .line-control {
             stroke: #64748b;
-            stroke-width: 1.8px;
+            stroke-width: 0.8px;
             stroke-linecap: round;
             fill: none;
         }
 
         .line-path-bg {
             stroke: rgba(148, 163, 184, 0.2);
-            stroke-width: 2px;
+            stroke-width: 1.0px;
             stroke-linecap: round;
             fill: none;
         }
 
         .line-path-flow {
-            stroke-width: 2px;
+            stroke-width: 1.0px;
             stroke-linecap: round;
             fill: none;
             transition: stroke 0.3s ease, filter 0.3s ease;
@@ -343,21 +382,21 @@
 
         .line-path-flow.energized {
             stroke: #facc15;
-            stroke-dasharray: 5, 5;
-            filter: drop-shadow(0 0 4px #eab308);
+            stroke-dasharray: 4, 4;
+            filter: drop-shadow(0 0 3px #eab308);
             animation: currentFlow 0.6s linear infinite;
         }
 
         @keyframes currentFlow {
-            0% { stroke-dashoffset: 20; }
+            0% { stroke-dashoffset: 16; }
             100% { stroke-dashoffset: 0; }
         }
 
         .arduino-lcd {
-            position: absolute; top: 2%; left: 2%;
+            position: absolute; top: 1%; left: 2%;
             background-color: #031427; color: #38bdf8;
             border: 2px solid #0284c7; border-radius: 8px;
-            padding: 8px; width: 26%; min-width: 120px;
+            padding: 8px; width: 28%; min-width: 110px;
             font-family: 'Courier New', Courier, monospace; font-size: 11px;
             box-shadow: 0 0 10px rgba(56, 189, 248, 0.2), inset 0 0 8px rgba(0,0,0,0.8); z-index: 2;
         }
@@ -365,16 +404,29 @@
 
         .esp32-box {
             position: absolute; top: 38%; left: 2%;
-            background: linear-gradient(135deg, var(--dark-blue), #0f172a);
-            color: white; padding: 12px 6px; border-radius: 10px;
-            text-align: center; font-weight: bold; font-size: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 18%; min-width: 80px;
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            color: #38bdf8; padding: 22px 6px; border-radius: 6px;
+            text-align: center; font-weight: bold; font-size: 11px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4), inset 0 0 5px rgba(56, 189, 248, 0.3); 
+            width: 22%; min-width: 82px;
             z-index: 2; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            border: 1px solid #38bdf8;
+            border: 2px solid #475569;
+        }
+        .esp32-box::before, .esp32-box::after {
+            content: "";
+            position: absolute;
+            left: -5px; right: -5px; height: 5px;
+            background: repeating-linear-gradient(90deg, #cbd5e1, #cbd5e1 3px, transparent 3px, transparent 6px);
+        }
+        .esp32-box::before { top: -6px; }
+        .esp32-box::after { bottom: -6px; }
+        .esp32-notch {
+            position: absolute; top: 2px; left: 50%; transform: translateX(-50%);
+            width: 10px; height: 4px; background: #0f172a; border-radius: 0 0 4px 4px;
         }
 
         .relay-box {
-            position: absolute; top: 38%; left: 34%;
+            position: absolute; top: 36%; left: 34%;
             background-color: var(--text-muted); color: white;
             padding: 24px 6px; border-radius: 8px;
             writing-mode: vertical-rl; text-orientation: mixed; text-align: center;
@@ -389,13 +441,13 @@
         .relay-box.fault { background-color: var(--red); box-shadow: 0 0 12px rgba(239, 68, 68, 0.8); }
         .relay-box.delestage { background-color: #f59e0b; box-shadow: 0 0 12px rgba(245, 158, 11, 0.8); }
 
-        .sensor-current-1 { position: absolute; top: 18%; left: 51%; z-index: 2; }
-        .sensor-current-2 { position: absolute; top: 44%; left: 51%; z-index: 2; }
-        .sensor-current-3 { position: absolute; top: 70%; left: 51%; z-index: 2; }
+        .sensor-current-1 { position: absolute; top: 16%; left: 56%; z-index: 2; }
+        .sensor-current-2 { position: absolute; top: 42%; left: 56%; z-index: 2; }
+        .sensor-current-3 { position: absolute; top: 68%; left: 56%; z-index: 2; }
 
-        .lamp-1 { position: absolute; top: 18%; left: 81%; z-index: 2; }
-        .lamp-2 { position: absolute; top: 44%; left: 81%; z-index: 2; }
-        .lamp-3 { position: absolute; top: 70%; left: 81%; z-index: 2; }
+        .lamp-1 { position: absolute; top: 16%; left: 86%; z-index: 2; }
+        .lamp-2 { position: absolute; top: 42%; left: 86%; z-index: 2; }
+        .lamp-3 { position: absolute; top: 68%; left: 86%; z-index: 2; }
 
         .sensor-box {
             background: var(--sensor-blue); color: #ffffff;
@@ -408,7 +460,11 @@
             border-color: #38bdf8;
             box-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
         }
-        .sensor-tag { font-size: 9px; color: var(--text-muted); margin-bottom: 2px; text-align: center; width: 75px; font-weight: 700; }
+        .sensor-tag { 
+            font-size: 9px; color: var(--text-muted); margin-bottom: 3px; 
+            text-align: center; width: 75px; font-weight: 700; 
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+        }
 
         .lamp-container {
             display: flex; align-items: center; justify-content: center;
@@ -423,26 +479,16 @@
         .bottom-sensors-row {
             position: absolute; bottom: 2%; left: 2%; right: 2%;
             display: flex; justify-content: space-around; align-items: center;
-            padding-top: 10px; border-top: 1px dashed var(--text-muted); z-index: 2;
+            padding-top: 6px; border-top: 1px dashed var(--text-muted); z-index: 2;
+            flex-wrap: wrap; gap: 6px;
         }
 
         .sensor-mini { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            font-size: 13px; 
-            color: var(--text-main); 
-            gap: 4px; 
-            font-weight: 600; 
-            text-align: center; 
+            display: flex; flex-direction: column; align-items: center; 
+            font-size: 11px; color: var(--text-main); gap: 2px; font-weight: 600; text-align: center; 
         }
-        .sensor-mini i { 
-            font-size: 22px; 
-            color: var(--dark-blue); 
-        }
-        .sensor-mini span {
-            font-size: 13px; 
-        }
+        .sensor-mini i { font-size: 16px; color: var(--dark-blue); }
+        .sensor-mini span { font-size: 11px; display: flex; flex-direction: column; align-items: center; }
         .sensor-mini i#fanIcon.active { color: var(--green); text-shadow: 0 0 8px rgba(34, 197, 94, 0.6); }
 
         .control-bar { margin-top: 5px; display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
@@ -481,7 +527,7 @@
         .gauges-panel {
             background: linear-gradient(180deg, #02093a 0%, #040d4b 100%);
             border-radius: var(--radius);
-            padding: 14px;
+            padding: 12px;
             display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
             color: var(--fixed-panel-text); 
             box-shadow: 0 15px 35px rgba(0,0,0,0.25);
@@ -489,34 +535,20 @@
             height: 100%;
             overflow-y: auto;
             min-width: 0;
+            width: 100%;
         }
 
         .gauges-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 10px;
-            background: rgba(255, 255, 255, 0.04);
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 4px 8px; background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08); flex-shrink: 0;
         }
 
-        .header-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.8px;
-            color: #60a5fa;
-        }
+        .header-status { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; color: #60a5fa; }
 
         .live-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #22c55e;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #22c55e;
+            width: 8px; height: 8px; background-color: #22c55e;
+            border-radius: 50%; box-shadow: 0 0 8px #22c55e;
             animation: pulse-dot 1.5s infinite;
         }
 
@@ -526,155 +558,69 @@
             100% { opacity: 1; transform: scale(1); }
         }
 
-        .status-icon {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 13px;
-        }
+        .status-icon { color: rgba(255, 255, 255, 0.4); font-size: 13px; }
 
         .gauge-card { 
-            background: rgba(255, 255, 255, 0.03); 
-            border-radius: 10px; 
-            padding: 8px 10px; 
-            border: 1px solid rgba(255, 255, 255, 0.07); 
-            display: flex; flex-direction: column; justify-content: space-between;
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            background: rgba(255, 255, 255, 0.03); border-radius: 10px; padding: 8px 10px; 
+            border: 1px solid rgba(255, 255, 255, 0.07); display: flex; flex-direction: column; justify-content: space-between;
+            transition: transform 0.2s ease, border-color 0.2s ease; flex-shrink: 0;
+            width: 100%;
         }
+        .gauge-card:hover { border-color: rgba(56, 189, 248, 0.3); background: rgba(255, 255, 255, 0.05); }
 
-        .gauge-card:hover {
-            border-color: rgba(56, 189, 248, 0.3);
-            background: rgba(255, 255, 255, 0.05);
-        }
+        .gauge-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; width: 100%; }
+        .gauge-card h3 { font-size: 11px; color: var(--fixed-panel-muted); font-weight: 600; margin: 0; }
 
-        .gauge-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2px;
-        }
-
-        .gauge-card h3 { 
-            font-size: 11px; 
-            color: var(--fixed-panel-muted); 
-            font-weight: 600; 
-            margin: 0;
-        }
-
-        .gauge-badge {
-            font-size: 9px;
-            font-weight: 700;
-            background: rgba(56, 189, 248, 0.15);
-            color: #38bdf8;
-            padding: 2px 6px;
-            border-radius: 6px;
-        }
+        .gauge-badge { font-size: 9px; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 2px 6px; border-radius: 6px; }
 
         .image-gauge-container { 
             position: relative; 
             width: 100%; 
-            max-width: 140px;
-            height: 65px;
+            max-width: 140px; 
+            height: auto; 
+            aspect-ratio: 2 / 1; 
             margin: 0 auto; 
         }
-
-        .gauge-svg { 
-            width: 100%; 
-            height: 100%; 
-            overflow: visible;
-        }
-
-        .gauge-track { 
-            fill: none; 
-            stroke: rgba(255, 255, 255, 0.08); 
-            stroke-width: 8; 
-            stroke-linecap: round; 
-        }
-
+        .gauge-svg { width: 100%; height: 100%; overflow: visible; display: block; }
+        .gauge-track { fill: none; stroke: rgba(255, 255, 255, 0.08); stroke-width: 8; stroke-linecap: round; }
         .gauge-fill {
-            fill: none; 
-            stroke-width: 8; 
-            stroke-linecap: round;
-            stroke-dasharray: 132; 
-            stroke-dashoffset: 132; 
+            fill: none; stroke-width: 8; stroke-linecap: round;
+            stroke-dasharray: 132; stroke-dashoffset: 132; 
             transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.5));
         }
-
         .gauge-needle-modern {
-            stroke: #ffffff;
-            stroke-width: 2.5;
-            stroke-linecap: round;
-            transform-origin: 50px 50px;
-            transform: rotate(0deg);
+            stroke: #ffffff; stroke-width: 2.5; stroke-linecap: round;
+            transform-origin: 50px 50px; transform: rotate(0deg);
             transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             filter: drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.8));
         }
-
-        .needle-center {
-            fill: #38bdf8;
-            stroke: #ffffff;
-            stroke-width: 1.5;
-        }
-
-        .gauge-value { 
-            font-size: 13px; 
-            font-weight: 800; 
-            margin-top: 1px; 
-            color: #ffffff; 
-            text-align: center;
-        }
-
-        .gauge-value small {
-            font-size: 9px;
-            color: var(--fixed-panel-muted);
-            font-weight: 500;
-        }
+        .needle-center { fill: #38bdf8; stroke: #ffffff; stroke-width: 1.5; }
+        .gauge-value { font-size: 13px; font-weight: 800; margin-top: 2px; color: #ffffff; text-align: center; }
+        .gauge-value small { font-size: 9px; color: var(--fixed-panel-muted); font-weight: 500; }
 
         .currents-grid { 
-            display: flex; 
-            justify-content: space-between; 
-            gap: 6px;
-            background: rgba(0, 0, 0, 0.25); 
-            padding: 6px; 
-            border-radius: 8px; 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            margin-top: 2px;
+            display: flex; justify-content: space-between; gap: 4px;
+            background: rgba(0, 0, 0, 0.25); padding: 4px; border-radius: 8px; 
+            border: 1px solid rgba(255, 255, 255, 0.05); margin-top: 2px; width: 100%;
         }
-
-        .current-box { 
-            text-align: center; 
-            flex: 1; 
-            background: rgba(255, 255, 255, 0.03);
-            padding: 3px;
-            border-radius: 6px;
-        }
-
-        .phase-tag { 
-            display: block; 
-            color: var(--fixed-panel-muted); 
-            font-size: 9px;
-            font-weight: 700;
-            margin-bottom: 1px;
-        }
-
-        .current-box strong { 
-            color: #38bdf8; 
-            font-size: 11px; 
-            font-weight: 700;
-        }
+        .current-box { text-align: center; flex: 1; background: rgba(255, 255, 255, 0.03); padding: 2px; border-radius: 6px; }
+        .phase-tag { display: block; color: var(--fixed-panel-muted); font-size: 9px; font-weight: 700; margin-bottom: 1px; }
+        .current-box strong { color: #38bdf8; font-size: 10px; font-weight: 700; }
 
         .report-controls { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
         .report-controls .form-control { max-width: 250px; display: inline-block; }
 
         @media(max-width: 992px) {
-            body { height: auto; overflow: auto; }
-            .main-container { height: auto; overflow: visible; }
-            .app-view.active-view#view-dashboard { height: auto; }
-            .workspace { grid-template-columns: 1fr; height: auto; overflow: visible; }
-            .sidebar { transform: translateX(-100%); }
-            .sidebar:not(.collapsed) { transform: translateX(0); width: 280px; opacity: 1; }
+            html, body { height: 100vh; height: 100dvh; overflow: auto; }
+            .main-container { height: 100vh; height: 100dvh; overflow: auto; }
+            .app-view { height: auto; min-height: calc(100dvh - 65px); overflow: auto; }
+            .workspace { grid-template-columns: 1fr; height: auto; min-height: auto; overflow: visible; }
+            .sidebar { transform: translateX(-100%); width: 280px; }
+            .sidebar:not(.collapsed) { transform: translateX(0); opacity: 1; }
             .main-container { margin-left: 0 !important; }
-            .synoptic-panel { height: 500px; }
-            .gauges-panel { height: auto; }
+            .synoptic-panel { height: 550px; flex-shrink: 0; }
+            .gauges-panel { height: auto; overflow-y: visible; }
         }
     </style>
 </head>
@@ -682,10 +628,11 @@
 
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!-- SIDEBAR -->
     <aside class="sidebar collapsed" id="sidebar">
         <div class="logo-area">
-            <h1>Del<span>Sys</span></h1>
+            <div class="delsys-brand">
+                Del<span>Sys</span>
+            </div>
             <ul class="nav-links">
                 <li><a class="nav-menu-item active" data-target="view-dashboard"><i class="fa-solid fa-chart-pie"></i> Tableau de bord</a></li>
                 <li><a class="nav-menu-item" data-target="view-donnees"><i class="fa-solid fa-database"></i> Données</a></li>
@@ -708,7 +655,9 @@
         <header class="topnav">
             <div class="topnav-title">
                 <button class="menu-toggle-btn" id="sidebarToggleBtn" title="Afficher/Masquer le menu"><i class="fa-solid fa-bars"></i></button>
-                <h2 style="color: white; display: flex; align-items: center; gap: 2px;">Del<span style="color: #38bdf8;">Sys</span></h2>
+                <div class="topnav-logo-badge">
+                    Del<span>Sys</span>
+                </div>
             </div>
             <div class="top-actions">
                 <button class="btn-theme-toggle" id="themeToggleBtn" title="Changer le thème"><i class="fa-solid fa-sun" id="themeIcon"></i></button>
@@ -716,7 +665,7 @@
             </div>
         </header>
 
-        <!-- VUE 1 : TABLEAU DE BORD ADAPTATIF -->
+        <!-- VUE 1 : TABLEAU DE BORD -->
         <div class="app-view active-view" id="view-dashboard">
             <div class="workspace">
                 <section class="synoptic-panel">
@@ -727,25 +676,25 @@
                     <div class="synoptic-body">
                         <div class="circuit-stage">
                             <svg class="schema-lines" viewBox="0 0 100 100" preserveAspectRatio="none">
-                                <line x1="20" y1="48" x2="34" y2="48" class="line-control" />
+                                <line x1="20" y1="46" x2="34" y2="46" class="line-control" />
 
-                                <path d="M 38 42 C 45 42, 46 22, 51 22" class="line-path-bg" />
-                                <path d="M 38 42 C 45 42, 46 22, 51 22" class="line-path-flow energized" id="path-l1" />
+                                <path d="M 38 40 C 47 40, 48 20, 56 20" class="line-path-bg" />
+                                <path d="M 38 40 C 47 40, 48 20, 56 20" class="line-path-flow energized" id="path-l1" />
 
-                                <path d="M 38 48 C 45 48, 46 48, 51 48" class="line-path-bg" />
-                                <path d="M 38 48 C 45 48, 46 48, 51 48" class="line-path-flow energized" id="path-l2" />
+                                <path d="M 38 46 C 47 46, 48 46, 56 46" class="line-path-bg" />
+                                <path d="M 38 46 C 47 46, 48 46, 56 46" class="line-path-flow energized" id="path-l2" />
 
-                                <path d="M 38 54 C 45 54, 46 74, 51 74" class="line-path-bg" />
-                                <path d="M 38 54 C 45 54, 46 74, 51 74" class="line-path-flow energized" id="path-l3" />
+                                <path d="M 38 52 C 47 52, 48 72, 56 72" class="line-path-bg" />
+                                <path d="M 38 52 C 47 52, 48 72, 56 72" class="line-path-flow energized" id="path-l3" />
 
-                                <line x1="58" y1="22" x2="81" y2="22" class="line-path-bg" />
-                                <line x1="58" y1="22" x2="81" y2="22" class="line-path-flow energized" id="out-l1" />
+                                <line x1="63" y1="20" x2="86" y2="20" class="line-path-bg" />
+                                <line x1="63" y1="20" x2="86" y2="20" class="line-path-flow energized" id="out-l1" />
 
-                                <line x1="58" y1="48" x2="81" y2="48" class="line-path-bg" />
-                                <line x1="58" y1="48" x2="81" y2="48" class="line-path-flow energized" id="out-l2" />
+                                <line x1="63" y1="46" x2="86" y2="46" class="line-path-bg" />
+                                <line x1="63" y1="46" x2="86" y2="46" class="line-path-flow energized" id="out-l2" />
 
-                                <line x1="58" y1="74" x2="81" y2="74" class="line-path-bg" />
-                                <line x1="58" y1="74" x2="81" y2="74" class="line-path-flow energized" id="out-l3" />
+                                <line x1="63" y1="72" x2="86" y2="72" class="line-path-bg" />
+                                <line x1="63" y1="72" x2="86" y2="72" class="line-path-flow energized" id="out-l3" />
                             </svg>
 
                             <div class="arduino-lcd" id="lcdScreen">
@@ -754,21 +703,32 @@
                             </div>
 
                             <div class="esp32-box">
-                                <i class="fa-solid fa-microchip"></i><br>ESP32
+                                <div class="esp32-notch"></div>
+                                <i class="fa-solid fa-microchip" style="font-size: 14px; margin-bottom: 2px;"></i>
+                                <span style="font-size: 10px; letter-spacing: 0.5px;">ESP32</span>
                             </div>
 
                             <div class="relay-box active-relay" id="relayBox">Relais</div>
 
                             <div class="sensor-current-1">
-                                <div class="sensor-tag">Phase L1</div>
+                                <div class="sensor-tag">
+                                    <i class="fa-solid fa-gauge-high" style="color: #38bdf8; font-size: 11px;"></i>
+                                    <span>Phase L1</span>
+                                </div>
                                 <div class="sensor-box energized-val" id="curBox1">9.6 A</div>
                             </div>
                             <div class="sensor-current-2">
-                                <div class="sensor-tag">Phase L2</div>
+                                <div class="sensor-tag">
+                                    <i class="fa-solid fa-gauge-high" style="color: #38bdf8; font-size: 11px;"></i>
+                                    <span>Phase L2</span>
+                                </div>
                                 <div class="sensor-box energized-val" id="curBox2">9.9 A</div>
                             </div>
                             <div class="sensor-current-3">
-                                <div class="sensor-tag">Phase L3</div>
+                                <div class="sensor-tag">
+                                    <i class="fa-solid fa-gauge-high" style="color: #38bdf8; font-size: 11px;"></i>
+                                    <span>Phase L3</span>
+                                </div>
                                 <div class="sensor-box energized-val" id="curBox3">9.7 A</div>
                             </div>
 
@@ -815,6 +775,7 @@
                     </div>
                 </section>
 
+                <!-- PANNEAU DES JAUGES -->
                 <aside class="gauges-panel">
                     <div class="gauges-header">
                         <div class="header-status">
@@ -830,7 +791,7 @@
                             <span class="gauge-badge">kW</span>
                         </div>
                         <div class="image-gauge-container">
-                            <svg class="gauge-svg" viewBox="0 0 100 60">
+                            <svg class="gauge-svg" viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet">
                                 <defs>
                                     <linearGradient id="gradPower" x1="0%" y1="0%" x2="100%" y2="0%">
                                         <stop offset="0%" stop-color="#38bdf8" />
@@ -849,7 +810,7 @@
                     <div class="gauge-card">
                         <div class="gauge-card-header">
                             <h3>Les Courants par Phase</h3>
-                            <i class="fa-solid fa-bolt" style="color: #f59e0b; font-size: 13px;"></i>
+                            <i class="fa-solid fa-bolt" style="color: #f59e0b; font-size: 12px;"></i>
                         </div>
                         <div class="currents-grid">
                             <div class="current-box">
@@ -873,7 +834,7 @@
                             <span class="gauge-badge">%</span>
                         </div>
                         <div class="image-gauge-container">
-                            <svg class="gauge-svg" viewBox="0 0 100 60">
+                            <svg class="gauge-svg" viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet">
                                 <defs>
                                     <linearGradient id="gradLoad" x1="0%" y1="0%" x2="100%" y2="0%">
                                         <stop offset="0%" stop-color="#22c55e" />
@@ -896,7 +857,7 @@
                             <span class="gauge-badge">°C</span>
                         </div>
                         <div class="image-gauge-container">
-                            <svg class="gauge-svg" viewBox="0 0 100 60">
+                            <svg class="gauge-svg" viewBox="0 0 100 60" preserveAspectRatio="xMidYMid meet">
                                 <defs>
                                     <linearGradient id="gradTemp" x1="0%" y1="0%" x2="100%" y2="0%">
                                         <stop offset="0%" stop-color="#38bdf8" />
@@ -924,7 +885,7 @@
                     <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 15px;">
                         Tableau récapitulatif des mesures en temps réel enregistrées par le système.
                     </p>
-                    <div style="overflow-x: auto;">
+                    <div class="table-responsive">
                         <table class="styled-table" id="dataTableDonnees">
                             <thead>
                                 <tr>
@@ -979,27 +940,29 @@
 
                 <div class="card-panel">
                     <h2><i class="fa-solid fa-users-gear"></i> Liste des Opérateurs</h2>
-                    <table class="styled-table" id="operatorsTable">
-                        <thead>
-                            <tr>
-                                <th>Matricule</th>
-                                <th>Rôle</th>
-                                <th>Statut Approbation</th>
-                                <th>Actions Admin</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>MAT-001</td>
-                                <td>Opérateur</td>
-                                <td><span id="statut-MAT-001" style="color: var(--green); font-weight: bold;">Approuvé</span></td>
-                                <td>
-                                    <button class="btn-primary-custom" style="background-color: #f59e0b; padding: 4px 8px;" onclick="toggleApprobation(event, 'MAT-001')">Désapprouver</button>
-                                    <button class="btn-primary-custom" style="background-color: var(--red); padding: 4px 8px;" onclick="supprimerOperateur(this)">Supprimer</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="styled-table" id="operatorsTable">
+                            <thead>
+                                <tr>
+                                    <th>Matricule</th>
+                                    <th>Rôle</th>
+                                    <th>Statut Approbation</th>
+                                    <th>Actions Admin</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>MAT-001</td>
+                                    <td>Opérateur</td>
+                                    <td><span id="statut-MAT-001" style="color: var(--green); font-weight: bold;">Approuvé</span></td>
+                                    <td>
+                                        <button class="btn-primary-custom" style="background-color: #f59e0b; padding: 4px 8px;" onclick="toggleApprobation(event, 'MAT-001')">Désapprouver</button>
+                                        <button class="btn-primary-custom" style="background-color: var(--red); padding: 4px 8px;" onclick="supprimerOperateur(this)">Supprimer</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1011,7 +974,7 @@
                     <h2><i class="fa-solid fa-file-arrow-down"></i> Rapports de la Cabine</h2>
                     <div class="report-controls">
                         <div>
-                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px;">Trier par Délesteur :</label>
+                            <label style="font-size: 12px; font-weight: 600; display: block; margin-bottom: 4px; color: var(--text-main);">Trier par Délesteur :</label>
                             <select id="filterDelesteur" class="form-control" onchange="filtrerTableauRapport()">
                                 <option value="tous">Tous</option>
                                 <option value="systeme">Système</option>
@@ -1020,7 +983,7 @@
                         </div>
                     </div>
 
-                    <div style="overflow-x: auto;">
+                    <div class="table-responsive">
                         <table class="styled-table" id="reportTable">
                             <thead>
                                 <tr>
@@ -1063,7 +1026,7 @@
             <div class="content-section">
                 <div class="card-panel">
                     <h2><i class="fa-solid fa-code"></i> Gestion de priorité des départs</h2>
-                    <div style="overflow-x: auto;">
+                    <div class="table-responsive">
                         <table class="styled-table" id="tableGestionProgramme">
                             <thead>
                                 <tr>
