@@ -40,7 +40,7 @@
             flex-direction: column;
             min-height: 100vh;
             transition: background-color 0.3s, color 0.3s;
-            padding-top: 76px;
+            padding-top: 60px; /* Réduit pour coller la photo tout de suite sous la navbar fixe */
         }
 
         .navbar-delsys {
@@ -48,8 +48,9 @@
             top: 0; left: 0; width: 100%;
             z-index: 1030;
             background-color: var(--primary-dark);
-            padding: 15px 30px;
+            padding: 10px 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: nowrap;
         }
 
         @keyframes fadeInDown {
@@ -67,10 +68,11 @@
 
         .navbar-brand {
             font-weight: 800;
-            font-size: 1.5rem;
+            font-size: 1.35rem;
             color: #fff !important;
             letter-spacing: 1px;
             text-decoration: none;
+            white-space: nowrap;
         }
         .navbar-brand span { color: #60a5fa; }
 
@@ -79,7 +81,7 @@
             background: linear-gradient(135deg, rgba(2, 9, 58, 0.70), rgba(15, 23, 42, 0.75)), 
                         url('https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
             color: white;
-            padding: 110px 20px;
+            padding: 90px 20px 80px 20px; /* Remontée en réduisant le padding supérieur */
             text-align: center;
             overflow: hidden;
         }
@@ -179,19 +181,35 @@
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
         footer span { color: #60a5fa; font-weight: bold; }
+
+        @media (max-width: 576px) {
+            .navbar-delsys {
+                padding: 8px 15px;
+            }
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+            .btn-connect-nav {
+                padding: 0.375rem 0.8rem !important;
+                font-size: 0.85rem;
+            }
+            .hero-section {
+                padding: 70px 15px 60px 15px;
+            }
+        }
     </style>
 </head>
 <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-delsys">
-        <div class="container-fluid">
-            <a href="index.html" class="navbar-brand animate-fade-down">Del<span>Sys</span></a>
-            <div class="ms-auto d-flex align-items-center">
-                <button class="btn btn-outline-light btn-sm me-3 rounded-circle" id="darkModeToggle" title="Changer le thème" style="width: 38px; height: 38px;">
+    <nav class="navbar navbar-dark navbar-delsys">
+        <div class="container-fluid px-0 d-flex justify-content-between align-items-center">
+            <a href="index.html" class="navbar-brand animate-fade-down m-0">Del<span>Sys</span></a>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" id="darkModeToggle" title="Changer le thème" style="width: 36px; height: 36px; min-width: 36px;">
                     <i class="fas fa-sun" id="themeIcon"></i>
                 </button>
-                <a href="login.html" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" style="background-color: #2563eb; border: none;">Se connecter</a>
+                <a href="login.html" class="btn btn-primary rounded-pill px-3 py-1.5 fw-bold shadow-sm btn-connect-nav text-nowrap" style="background-color: #2563eb; border: none; font-size: 0.9rem;">Se connecter</a>
             </div>
         </div>
     </nav>
@@ -382,7 +400,6 @@
         const themeIcon = document.getElementById('themeIcon');
         const htmlTag = document.documentElement;
 
-        // Persistance du thème partagée
         const savedTheme = localStorage.getItem('delsys_theme') || 'light';
         htmlTag.setAttribute('data-theme', savedTheme);
         themeIcon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
